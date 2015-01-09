@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="modules">
+        <item>What is a Rose?</item>
+        <item>Pruning</item>
+        <item>Dead Heading</item>
+        <item>Shearing</item>
+        <item>Rose Hybrids</item>
+        <item>Styles of Floristry</item>
+        <item>Color Symbolism</item>
+    </array>
+</resources>

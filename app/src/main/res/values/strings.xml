@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Roses xAPI Demo</string>
+    <string name="app_title">Introduction to Roses xAPI Demo</string>
+    <string name="app_activity_iri">http://adlnet.gov/jobaid/roses</string>
+
+    <string name="lrs_endpoint">https://lrs.adlnet.gov/xapi/</string>
+    <string name="lrs_user">lou</string>
+    <string name="lrs_password">password</string>
+
+    <string name="preferences_screen_title">Create xAPI Actor Account</string>
+    <string name="preferences_key">org.adl.roses.preferences</string>
+    <string name="preferences_name_key">name</string>
+    <string name="preferences_email_key">email</string>
+    <string name="preferences_bookmark_key">bookmark</string>
+    <string name="preference_send_init">send_init</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="suspend_button">Suspend</string>
+
+    <string name="title_activity_rose">RoseActivity</string>
+    <string name="title_activity_pruning">PruningActivity</string>
+    <string name="title_activity_dead_heading">DeadHeadingActivity</string>
+    <string name="title_activity_shearing">ShearingActivity</string>
+    <string name="title_activity_hybrids">HybridsActivity</string>
+    <string name="title_activity_floristry">FloristryActivity</string>
+    <string name="title_activity_symbolism">SymbolismActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="context_name_desc">Roses Job Aid xAPI Example</string>
+
+    <string name="mod_description_prefix">Roses Job Aid</string>
+
+    <string name="mod_what_path">/what</string>
+    <string name="mod_what_name">What is a Rose</string>
+    <string name="mod_what_description">Roses Job Aid - What is a Rose</string>
+    <string name="mod_what_text">
+        A rose is a flowering shrub of the genus Rosa, and the flower of this shrub. There are more than a hundred species of wild roses,
+        all from the northern hemisphere and mostly from temperate regions. The species form a group of generally prickly shrubs or climbers,
+        and sometimes trailing plants, reaching 2-5 m tall, rarely reaching as high as 20 m by climbing over other plants.\n
+        \n
+        The name originates from Latin rosa, borrowed through Oscan from colonial Greek in southern Italy: rhodon (Aeolic form: wrodon),
+        from Aramaic wurrda, from Assyrian wurtinnu, from Old Iranian *warda (cf. Armenian vard, Avestan warda, Sogdian ward, Parthian wâr).
+    </string>
+
+    <string name="mod_pruning_path">/pruning</string>
+    <string name="mod_pruning_name">Rose Pruning</string>
+    <string name="mod_pruning_description">Roses Job Aid - Pruning</string>
+    <string name="mod_pruning_text">
+        Pruning in landscaping and gardening is the practice of removing diseased, non-productive,
+        or otherwise unwanted portions from a plant. The purpose of pruning is to shape the plant by controlling
+        or directing plant growth, to maintain the health of the plant, or to increase the yield or quality of
+        flowers and fruits. Proper pruning is as much a skill as it is an art, since badly pruned plants can become
+        diseased or grow in undesirable ways.
+    </string>
+
+    <string name="mod_deadheading_path">/deadheading</string>
+    <string name="mod_deadheading_name">Rose Dead Heading</string>
+    <string name="mod_deadheading_description">Roses Job Aid - Dead Heading</string>
+    <string name="mod_deadheading_text">
+        Dead Heading: A form of pruning used on small to medium flowering shrubs to remove spent flowers.
+        This is a common method used on Roses. The practice of \"deadheading\" is also a type of pinch pruning:
+        it removes spent flowers before they begin to set seed, to concentrate a plant\'s energy on continued flower
+        production, for the current year or the following year, as when lilacs are dead-headed after flowering.
+    </string>
+
+    <string name="mod_shearing_path">/shearing</string>
+    <string name="mod_shearing_name">Rose Shearing</string>
+    <string name="mod_shearing_description">Roses Job Aid - Shearing</string>
+    <string name="mod_shearing_text">
+        Shearing: A form of pruning employed on hedges or topiary, in which most of the growing points are tipped back,
+        to produce artificially dense growth. Shearing in general is a more indiscriminate form of pruning,
+        where the plant is simply cut to shape, however plants that have been trained to be sheared generally
+        produce buds and on the \"surfaces\" where they are to be sheared. It is commonly performed with hedge trimmers.
+    </string>
+
+    <string name="mod_hybrids_path">/hybrids</string>
+    <string name="mod_hybrids_name">Rose Hybrids</string>
+    <string name="mod_hybrids_description">Roses Job Aid - Hybrids</string>
+    <string name="mod_hybrids_text">
+        Hybrid Tea is a Cultivar Group of roses, created by cross-breeding two different types of roses.
+        Grown one flower to a long stem, they are supported by long, straight and upright stems. Most can be as
+        tall as 1.8 metres and are repeat flowering. Each flower can grow to 8-12.5 cm wide. Hybrid Teas are the
+        worlds most popular type of rose by choice due to their color and flower form. With their long stems,
+        it gives them the advantage, over others, as cut flowers. Most varieties, however, lack fragrance and can
+        be difficult to grow in the home garden due to a lack of disease resistance and susceptibility to cold temperatures.
+    </string>
+
+    <string name="mod_styles_path">/styles</string>
+    <string name="mod_styles_name">Rose Styles</string>
+    <string name="mod_styles_description">Roses Job Aid - Styles</string>
+    <string name="mod_styles_text_1">
+        Ikebana is a Japanese style of
+        floral design, noted for its simplicity and purity of lines and colors. Often Ikebana
+        designs feature sticks and branches such as willow.
+    </string>
+    <string name="mod_styles_text_2">
+        English Country Garden is traditionally
+        an English form of designing, but also includes many popular European influences, such as France
+        and Holland. These designs are often done as low mounds, or taller vase arrangements that are all-sided
+        (360 degrees). Many florists that follow this design style do not use Baby\'s Breath, Carnations and Leatherleaf.
+    </string>
+    <string name="mod_styles_text_3">
+        High Style is a form of design originating
+        from the United States. These designs often include a \'less is more\' motto. Flowers that are popular
+        among High Style Florists include many tropical flowers such as Birds of Paradise and Anthuriums,
+        and also more popular flowers such as Carnations.
+    </string>
+
+    <string name="mod_symbolism_path">/symbolism</string>
+    <string name="mod_symbolism_name">Rose Symbolism</string>
+    <string name="mod_symbolism_description">Roses Job Aid - Symbolism</string>
+    <string name="mod_symbolism_text">
+        <![CDATA[
+            <b>Blue:</b> mystery, attaining the impossible <br />
+            <b>Burgundy:</b> beauty <br />
+            <b>Coral or Orange:</b> desire, passion <br />
+            <b>Dark Pink:</b> gratitude <br />
+            <b>Lavender (violet):</b> love at first sight <br />
+            <b>Light Pink:</b> admiration, sympathy <br />
+            <b>Pink:</b> grace <br />
+            <b>Red:</b> love <br />
+            <b>White:</b> innocence, purity, secrecy, reverence and humility <br />
+            <b>Yellow:</b> Friendship, dying love or platonic love. In German-speaking countries: jealousy, infidelity.
+            ]]>
+    </string>
+
+</resources>

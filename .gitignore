@@ -21,6 +21,8 @@ target/
 # IntelliJ additions
 *.iml
 .idea/
+*.ipr
+*.iws
 
 #built application files
 *.apk
@@ -44,5 +46,12 @@ Thumbs.db
 
 # Android Studio
 .idea
-.gradle
+*.gradle
 build/
+bin/
+.gradle/
+.gradletasknamecache
+gradle/
+*.properties
+gradlew
+gradlew.bat
