@@ -13,18 +13,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <!--
-    <Button
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text="Close App"
-        android:onClick="closeApp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/list"
-        android:textColor="#FFFFFF"
-        android:background="#0000FF"/>
-        -->
     <ImageView
         android:id="@+id/img1"
         android:src="@drawable/corner"

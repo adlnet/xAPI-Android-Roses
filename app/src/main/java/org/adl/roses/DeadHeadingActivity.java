@@ -1,63 +1,57 @@
 package org.adl.roses;
 
-import android.content.Intent;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Button;
 
-public class DeadHeadingActivity extends ActionBarActivity {
-
+public class DeadHeadingActivity extends ContentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTitle(getString(R.string.mod_deadheading_name));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dead_heading);
-        TextView txt = (TextView)findViewById(R.id.deadheadingText);
-        txt.setText(getString(R.string.mod_deadheading_text));
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_dead_heading, menu);
-        return true;
-    }
+        setAndroidId(getIntent().getExtras().getInt("requestCode"));
+        setCurrentSlide(getIntent().getExtras().getInt("slideId"));
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        Button button = (Button) findViewById(R.id.dhSuspend);
+        button.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                returnResult(true);
+            }
+        });
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        Button pbutton = (Button) findViewById(R.id.dhPrev);
+        pbutton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                previousSlide();
+            }
+        });
+
+        Button nbutton = (Button) findViewById(R.id.dhNext);
+        nbutton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                nextSlide();
+            }
+        });
+
+        // Check that the activity is u sing he layout version with
+        // the fragment_container FameLayout
+        if (findViewById(R.id.textFrag) != null){
+
+            // However, if we'ere being restored from a previous state,
+            // then we don't need to do anything and hsould return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null){
+                return;
+            }
+
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            SlideFragment frag = new SlideFragment();
+            fragmentTransaction.add(R.id.textFrag, frag).commit();
         }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed(){
-        returnResult(false);
-    }
-
-    public void returnResult(boolean suspended){
-        Intent returnIntent = new Intent();
-        if (suspended){
-            setResult(RESULT_CANCELED, returnIntent);
-        }
-        else{
-            setResult(RESULT_OK, returnIntent);
-        }
-        finish();
-    }
-
-    public void suspendActivity(){
-        returnResult(true);
     }
 }

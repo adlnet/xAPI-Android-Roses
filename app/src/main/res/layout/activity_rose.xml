@@ -6,7 +6,9 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.example.lou.xapidemo.RoseActivity">
 
-    <TextView android:id="@+id/roseText" android:text="" android:layout_width="wrap_content"
+    <FrameLayout
+        android:id="@+id/textFrag"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <Button
@@ -14,8 +16,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/suspend_button"
-        android:layout_below="@id/roseText"
         android:layout_centerInParent="true"
+        />
+
+    <Button
+        android:id="@+id/whatPrev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/previous_button"
+        android:layout_below="@id/whatSuspend"
+        android:layout_alignParentLeft="true"
+        />
+
+    <Button
+        android:id="@+id/whatNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/next_button"
+        android:layout_below="@id/whatSuspend"
+        android:layout_alignParentRight="true"
         />
 
     <ImageView

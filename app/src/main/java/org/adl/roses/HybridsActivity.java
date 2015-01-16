@@ -1,18 +1,12 @@
 package org.adl.roses;
 
-import android.content.Intent;
-import android.graphics.Typeface;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.StyleSpan;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Button;
 
-public class HybridsActivity extends ActionBarActivity {
+public class HybridsActivity extends ContentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,44 +14,45 @@ public class HybridsActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hybrids);
 
-        final StyleSpan bss = new StyleSpan(Typeface.BOLD);
-        final SpannableStringBuilder sb = new SpannableStringBuilder(getString(R.string.mod_hybrids_text));
-        sb.setSpan(bss, 0, 10, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        TextView txt = (TextView)findViewById(R.id.hybridsText);
-        txt.setText(sb);
-    }
+        setAndroidId(getIntent().getExtras().getInt("requestCode"));
+        setCurrentSlide(getIntent().getExtras().getInt("slideId"));
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_hybrids, menu);
-        return true;
-    }
+        Button button = (Button) findViewById(R.id.hySuspend);
+        button.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                returnResult(true);
+            }
+        });
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        Button pbutton = (Button) findViewById(R.id.hyPrev);
+        pbutton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                previousSlide();
+            }
+        });
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        Button nbutton = (Button) findViewById(R.id.hyNext);
+        nbutton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                nextSlide();
+            }
+        });
+
+        // Check that the activity is u sing he layout version with
+        // the fragment_container FameLayout
+        if (findViewById(R.id.textFrag) != null){
+
+            // However, if we'ere being restored from a previous state,
+            // then we don't need to do anything and hsould return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null){
+                return;
+            }
+
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            SlideFragment frag = new SlideFragment();
+            fragmentTransaction.add(R.id.textFrag, frag).commit();
         }
-
-        return super.onOptionsItemSelected(item);
     }
-
-    @Override
-    public void onBackPressed(){
-        returnResult();
-    }
-
-    public void returnResult(){
-        Intent returnIntent = new Intent();
-        setResult(RESULT_OK, returnIntent);
-        finish();
-    }
-
 }

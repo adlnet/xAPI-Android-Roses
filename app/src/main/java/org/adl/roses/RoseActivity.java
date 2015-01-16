@@ -1,23 +1,21 @@
 package org.adl.roses;
 
-import android.content.Intent;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
-public class RoseActivity extends ActionBarActivity {
-
+public class RoseActivity extends ContentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTitle(getString(R.string.mod_what_name));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rose);
-        TextView txt = (TextView)findViewById(R.id.roseText);
-        txt.setText(getString(R.string.mod_what_text));
+
+        setAndroidId(getIntent().getExtras().getInt("requestCode"));
+        setCurrentSlide(getIntent().getExtras().getInt("slideId"));
+
         Button button = (Button) findViewById(R.id.whatSuspend);
         button.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
@@ -25,49 +23,35 @@ public class RoseActivity extends ActionBarActivity {
             }
         });
 
-    }
+        Button pbutton = (Button) findViewById(R.id.whatPrev);
+        pbutton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                previousSlide();
+            }
+        });
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_rose, menu);
-        return true;
-    }
+        Button nbutton = (Button) findViewById(R.id.whatNext);
+        nbutton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                nextSlide();
+            }
+        });
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        // Check that the activity is u sing he layout version with
+        // the fragment_container FameLayout
+        if (findViewById(R.id.textFrag) != null){
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+            // However, if we'ere being restored from a previous state,
+            // then we don't need to do anything and hsould return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null){
+                return;
+            }
+
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            SlideFragment frag = new SlideFragment();
+            fragmentTransaction.add(R.id.textFrag, frag).commit();
         }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed(){
-        returnResult(false);
-    }
-
-    public void returnResult(boolean suspended){
-        Bundle extras = getIntent().getExtras();
-        String sessionId = "";
-        if (extras != null){
-            sessionId = extras.getString("sessionId");
-        }
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("sessionId", sessionId);
-        if (suspended){
-            setResult(RESULT_CANCELED, returnIntent);
-        }
-        else{
-            setResult(RESULT_OK, returnIntent);
-        }
-        finish();
     }
 }
