@@ -6,6 +6,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import gov.adlnet.xapi.model.Activity;
+import gov.adlnet.xapi.model.Agent;
+import gov.adlnet.xapi.model.Context;
+import gov.adlnet.xapi.model.Verbs;
+
 public class RoseActivity extends ContentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -13,8 +18,32 @@ public class RoseActivity extends ContentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rose);
 
+        // Set the module ID and current slide
         setAndroidId(getIntent().getExtras().getInt("requestCode"));
         setCurrentSlide(getIntent().getExtras().getInt("slideId"));
+
+        // Set or generate the attempt ID
+        String attemptId = getIntent().getExtras().getString("attemptId", null);
+        if (attemptId == null){
+            generateAttempt();
+        }
+        else{
+            setCurrentAttempt(attemptId);
+        }
+
+        // Get actor and send initialized statement
+        Agent actor = getActor();
+        Activity what_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path) + "#" +
+                        getCurrentSlide() +"?attemptId=" + getCurrentAttempt(),
+                getString(R.string.mod_what_name), getString(R.string.mod_what_description));
+        Context what_con = createContext(getString(R.string.mod_what_path), getCurrentAttempt(),
+                getString(R.string.mod_what_name), getString(R.string.mod_what_description));
+
+        // send initialize statements and launch activity
+        MyStatementParams what_init_params = new MyStatementParams(actor, Verbs.initialized(), what_act, what_con);
+        WriteStatementTask what_init_stmt_task = new WriteStatementTask();
+        what_init_stmt_task.execute(what_init_params);
+
 
         Button button = (Button) findViewById(R.id.whatSuspend);
         button.setOnClickListener(new View.OnClickListener(){

@@ -89,10 +89,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id){
-                Map<String, Integer> placeholder = new HashMap<String, Integer>();
-                placeholder.put("module", position);
-                placeholder.put("slide", 0);
-                sendStatements(position, false, null, placeholder);
+                sendStatements(position, false, null, 0, null);
             }
         });
 
@@ -308,42 +305,38 @@ public class MainActivity extends ActionBarActivity {
 //        }
 //    }
 
-    private void sendStatements(int moduleId, boolean isResult, String attemptId, Map<String, Integer> bookmark){
+    private void sendStatements(int moduleId, boolean isResult, String mod_attempt_id, Integer slide, String mod_returning_attempt_id){
+        checkActor();
+        Agent actor = new Agent(_actor_name, "mailto:" + _actor_email);
         switch(moduleId)
         {
             case _result_what:
-                final Activity what_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path),
-                        getString(R.string.mod_what_name), getString(R.string.mod_what_description));
-
+                // Launching the activity from main screen list
                 if(! isResult){
                     Intent roseActivity = new Intent(MainActivity.this, RoseActivity.class);
-                    roseActivity.putExtra("slideId", 0);
-                    // Initial launch so create attempt id
-                    String what_attempt_id = UUID.randomUUID().toString();
-                    Context what_con = createContext(getString(R.string.mod_what_path), what_attempt_id,
-                            getString(R.string.mod_what_name), getString(R.string.mod_what_description));
-
-                    // send initialize statements and launch activity
-                    MyStatementParams what_init_params = new MyStatementParams(Verbs.initialized(), what_act, what_con);
-                    WriteStatementTask what_init_stmt_task = new WriteStatementTask();
-//                    what_init_stmt_task.execute(what_init_params);
-
-                    roseActivity.putExtra("sessionId", what_attempt_id);
+                    roseActivity.putExtra("slideId", slide);
+                    roseActivity.putExtra("actorName", _actor_name);
+                    roseActivity.putExtra("actorEmail", "mailto:" + _actor_email);
                     startActivityForResult(roseActivity, moduleId);
                 }
+                // Returning to main screen from activity
                 else{
+                    final Activity what_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path) + "#" +
+                                    slide +"?attemptId=" + mod_returning_attempt_id,
+                            getString(R.string.mod_what_name), getString(R.string.mod_what_description));
+
                     // This is called when returning from a rose module - need to keep same attemptId
-                    Context what_con = createContext(getString(R.string.mod_what_path), attemptId,
+                    Context what_con = createContext(getString(R.string.mod_what_path), mod_attempt_id,
                             getString(R.string.mod_what_name), getString(R.string.mod_what_description));
                     // returned result from launched activity, send experienced and terminated
-                    MyStatementParams what_ex_params = new MyStatementParams(Verbs.experienced(), what_act, what_con);
-                    MyStatementParams what_terminate_params = new MyStatementParams(Verbs.terminated(), what_act, what_con);
+//                    MyStatementParams what_ex_params = new MyStatementParams(actor, Verbs.experienced(), what_act, what_con);
+                    MyStatementParams what_terminate_params = new MyStatementParams(actor, Verbs.terminated(), what_act, what_con);
 
                     WriteStatementTask what_terminate_stmt_task = new WriteStatementTask();
-                    WriteStatementTask what_stmt_task = new WriteStatementTask();
+//                    WriteStatementTask what_stmt_task = new WriteStatementTask();
 
 //                    what_stmt_task.execute(what_ex_params);
-//                    what_terminate_stmt_task.execute(what_terminate_params);
+                    what_terminate_stmt_task.execute(what_terminate_params);
                 }
                 break;
             case _result_pruning:
@@ -358,25 +351,25 @@ public class MainActivity extends ActionBarActivity {
                     Context pruning_con = createContext(getString(R.string.mod_pruning_path), pruning_attempt_id,
                             getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description));
                     // send initialize statements and launch activity
-                    MyStatementParams pruning_init_params = new MyStatementParams(Verbs.initialized(), pruning_act, pruning_con);
+                    MyStatementParams pruning_init_params = new MyStatementParams(actor, Verbs.initialized(), pruning_act, pruning_con);
                     WriteStatementTask pruning_init_task = new WriteStatementTask();
-//                    pruning_init_task.execute(pruning_init_params);
+                    pruning_init_task.execute(pruning_init_params);
 
-                    pruningActivity.putExtra("sessionId", pruning_attempt_id);
+                    pruningActivity.putExtra("attemptId", pruning_attempt_id);
                     startActivityForResult(pruningActivity, moduleId);
                 }
                 else{
-                    Context pruning_con = createContext(getString(R.string.mod_pruning_path), attemptId,
+                    Context pruning_con = createContext(getString(R.string.mod_pruning_path), mod_attempt_id,
                             getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description));
                     // returned result from launched activity, send experienced and terminated
-                    MyStatementParams pruning_exp_params = new MyStatementParams(Verbs.experienced(), pruning_act, pruning_con);
-                    MyStatementParams pruning_terminate_params = new MyStatementParams(Verbs.terminated(), pruning_act, pruning_con);
+                    MyStatementParams pruning_exp_params = new MyStatementParams(actor, Verbs.experienced(), pruning_act, pruning_con);
+                    MyStatementParams pruning_terminate_params = new MyStatementParams(actor, Verbs.terminated(), pruning_act, pruning_con);
 
                     WriteStatementTask pruning_exp_task = new WriteStatementTask();
                     WriteStatementTask pruning_terminate_stmt_task = new WriteStatementTask();
 
-//                    pruning_exp_task.execute(pruning_exp_params);
-//                    pruning_terminate_stmt_task.execute(pruning_terminate_params);
+                    pruning_exp_task.execute(pruning_exp_params);
+                    pruning_terminate_stmt_task.execute(pruning_terminate_params);
                 }
                 break;
             case _result_deadheading:
@@ -390,26 +383,26 @@ public class MainActivity extends ActionBarActivity {
                     Context dh_con = createContext(getString(R.string.mod_deadheading_path), dh_attempt_id,
                             getString(R.string.mod_deadheading_name), getString(R.string.mod_deadheading_description));
                     // send initialize statements and launch activity
-                    MyStatementParams dh_init_params = new MyStatementParams(Verbs.initialized(), dh_act, dh_con);
+                    MyStatementParams dh_init_params = new MyStatementParams(actor, Verbs.initialized(), dh_act, dh_con);
                     WriteStatementTask dh_init_task = new WriteStatementTask();
-//                    dh_init_task.execute(dh_init_params);
+                    dh_init_task.execute(dh_init_params);
 
-                    deadheadingActivity.putExtra("sessionId", dh_attempt_id);
+                    deadheadingActivity.putExtra("attemptId", dh_attempt_id);
                     startActivityForResult(deadheadingActivity, moduleId);
                 }
                 else
                 {
-                    Context dh_con = createContext(getString(R.string.mod_deadheading_path), attemptId,
+                    Context dh_con = createContext(getString(R.string.mod_deadheading_path), mod_attempt_id,
                             getString(R.string.mod_deadheading_name), getString(R.string.mod_deadheading_description));
                     // returned result from launched activity, send experienced and terminated
-                    MyStatementParams dh_exp_params = new MyStatementParams(Verbs.experienced(), dh_act, dh_con);
-                    MyStatementParams dh_terminate_params = new MyStatementParams(Verbs.terminated(), dh_act, dh_con);
+                    MyStatementParams dh_exp_params = new MyStatementParams(actor, Verbs.experienced(), dh_act, dh_con);
+                    MyStatementParams dh_terminate_params = new MyStatementParams(actor, Verbs.terminated(), dh_act, dh_con);
 
                     WriteStatementTask dh_exp_stmt_task = new WriteStatementTask();
                     WriteStatementTask dh_terminate_stmt_task = new WriteStatementTask();
 
-//                    dh_exp_stmt_task.execute(dh_exp_params);
-//                    dh_terminate_stmt_task.execute(dh_terminate_params);
+                    dh_exp_stmt_task.execute(dh_exp_params);
+                    dh_terminate_stmt_task.execute(dh_terminate_params);
                 }
                 break;
             case _result_shearing:
@@ -423,26 +416,26 @@ public class MainActivity extends ActionBarActivity {
                     Context shear_con = createContext(getString(R.string.mod_shearing_path), shear_attempt_id,
                             getString(R.string.mod_shearing_name), getString(R.string.mod_shearing_description));
                     // send initialize statements and launch activity
-                    MyStatementParams shear_init_params = new MyStatementParams(Verbs.initialized(), shear_act, shear_con);
+                    MyStatementParams shear_init_params = new MyStatementParams(actor, Verbs.initialized(), shear_act, shear_con);
                     WriteStatementTask shear_init_task = new WriteStatementTask();
-//                    shear_init_task.execute(shear_init_params);
+                    shear_init_task.execute(shear_init_params);
 
-                    shearingActivity.putExtra("sessionId", shear_attempt_id);
+                    shearingActivity.putExtra("attemptId", shear_attempt_id);
                     startActivityForResult(shearingActivity, moduleId);
                 }
                 else
                 {
-                    Context shear_con = createContext(getString(R.string.mod_shearing_path), attemptId,
+                    Context shear_con = createContext(getString(R.string.mod_shearing_path), mod_attempt_id,
                             getString(R.string.mod_shearing_name), getString(R.string.mod_shearing_description));
                     // returned result from launched activity, send experienced and terminated
-                    MyStatementParams shear_exp_params = new MyStatementParams(Verbs.experienced(), shear_act, shear_con);
-                    MyStatementParams shear_terminate_params = new MyStatementParams(Verbs.terminated(), shear_act, shear_con);
+                    MyStatementParams shear_exp_params = new MyStatementParams(actor, Verbs.experienced(), shear_act, shear_con);
+                    MyStatementParams shear_terminate_params = new MyStatementParams(actor, Verbs.terminated(), shear_act, shear_con);
 
                     WriteStatementTask shear_exp_stmt_task = new WriteStatementTask();
                     WriteStatementTask shear_terminate_stmt_task = new WriteStatementTask();
 
-//                    shear_exp_stmt_task.execute(shear_exp_params);
-//                    shear_terminate_stmt_task.execute(shear_terminate_params);
+                    shear_exp_stmt_task.execute(shear_exp_params);
+                    shear_terminate_stmt_task.execute(shear_terminate_params);
                 }
                 break;
             case _result_hybrids:
@@ -456,26 +449,26 @@ public class MainActivity extends ActionBarActivity {
                     Context hybrid_con = createContext(getString(R.string.mod_hybrids_path), hybrid_attempt_id,
                             getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description));
                     // send initialize statements and launch activity
-                    MyStatementParams hybrid_init_params = new MyStatementParams(Verbs.initialized(), hybrid_act, hybrid_con);
+                    MyStatementParams hybrid_init_params = new MyStatementParams(actor, Verbs.initialized(), hybrid_act, hybrid_con);
                     WriteStatementTask hybrid_init_task = new WriteStatementTask();
-//                    hybrid_init_task.execute(hybrid_init_params);
+                    hybrid_init_task.execute(hybrid_init_params);
 
-                    hybridsActivity.putExtra("sessionId", hybrid_attempt_id);
+                    hybridsActivity.putExtra("attemptId", hybrid_attempt_id);
                     startActivityForResult(hybridsActivity, moduleId);
                 }
                 else
                 {
-                    Context hybrid_con = createContext(getString(R.string.mod_hybrids_path), attemptId,
+                    Context hybrid_con = createContext(getString(R.string.mod_hybrids_path), mod_attempt_id,
                             getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description));
                     // returned result from launched activity, send experienced and terminated
-                    MyStatementParams hybrid_exp_params = new MyStatementParams(Verbs.experienced(), hybrid_act, hybrid_con);
-                    MyStatementParams hybrid_terminate_params = new MyStatementParams(Verbs.terminated(), hybrid_act, hybrid_con);
+                    MyStatementParams hybrid_exp_params = new MyStatementParams(actor, Verbs.experienced(), hybrid_act, hybrid_con);
+                    MyStatementParams hybrid_terminate_params = new MyStatementParams(actor, Verbs.terminated(), hybrid_act, hybrid_con);
 
                     WriteStatementTask hybrid_exp_stmt_task = new WriteStatementTask();
                     WriteStatementTask hybrid_terminate_stmt_task = new WriteStatementTask();
 
-//                    hybrid_exp_stmt_task.execute(hybrid_exp_params);
-//                    hybrid_terminate_stmt_task.execute(hybrid_terminate_params);
+                    hybrid_exp_stmt_task.execute(hybrid_exp_params);
+                    hybrid_terminate_stmt_task.execute(hybrid_terminate_params);
                 }
                 break;
             case _result_styles:
@@ -489,26 +482,26 @@ public class MainActivity extends ActionBarActivity {
                     Context florist_con = createContext(getString(R.string.mod_styles_path), florist_attempt_id,
                             getString(R.string.mod_styles_name), getString(R.string.mod_styles_description));
                     // send initialize statements and launch activity
-                    MyStatementParams florist_init_params = new MyStatementParams(Verbs.initialized(), florist_act, florist_con);
+                    MyStatementParams florist_init_params = new MyStatementParams(actor, Verbs.initialized(), florist_act, florist_con);
                     WriteStatementTask florist_init_task = new WriteStatementTask();
-//                    florist_init_task.execute(florist_init_params);
+                    florist_init_task.execute(florist_init_params);
 
-                    floristryActivity.putExtra("sessionId", florist_attempt_id);
+                    floristryActivity.putExtra("attemptId", florist_attempt_id);
                     startActivityForResult(floristryActivity, moduleId);
                 }
                 else
                 {
-                    Context florist_con = createContext(getString(R.string.mod_styles_path), attemptId,
+                    Context florist_con = createContext(getString(R.string.mod_styles_path), mod_attempt_id,
                             getString(R.string.mod_styles_name), getString(R.string.mod_styles_description));
                     // returned result from launched activity, send experienced and terminated
-                    MyStatementParams florist_exp_params = new MyStatementParams(Verbs.experienced(), florist_act, florist_con);
-                    MyStatementParams florist_terminate_params = new MyStatementParams(Verbs.terminated(), florist_act, florist_con);
+                    MyStatementParams florist_exp_params = new MyStatementParams(actor, Verbs.experienced(), florist_act, florist_con);
+                    MyStatementParams florist_terminate_params = new MyStatementParams(actor, Verbs.terminated(), florist_act, florist_con);
 
                     WriteStatementTask florist_exp_stmt_task = new WriteStatementTask();
                     WriteStatementTask florist_terminate_stmt_task = new WriteStatementTask();
 
-//                    florist_exp_stmt_task.execute(florist_exp_params);
-//                    florist_terminate_stmt_task.execute(florist_terminate_params);
+                    florist_exp_stmt_task.execute(florist_exp_params);
+                    florist_terminate_stmt_task.execute(florist_terminate_params);
                 }
                 break;
             case _result_symbolism:
@@ -522,26 +515,26 @@ public class MainActivity extends ActionBarActivity {
                     Context sym_con = createContext(getString(R.string.mod_symbolism_path), sym_attempt_id,
                             getString(R.string.mod_symbolism_name), getString(R.string.mod_symbolism_description));
                     // send initialize statements and launch activity
-                    MyStatementParams sym_init_params = new MyStatementParams(Verbs.initialized(), sym_act, sym_con);
+                    MyStatementParams sym_init_params = new MyStatementParams(actor, Verbs.initialized(), sym_act, sym_con);
                     WriteStatementTask sym_init_task = new WriteStatementTask();
-//                    sym_init_task.execute(sym_init_params);
+                    sym_init_task.execute(sym_init_params);
 
                     symbolismActivity.putExtra("sessionId", sym_attempt_id);
                     startActivityForResult(symbolismActivity, moduleId);
                 }
                 else
                 {
-                    Context sym_con = createContext(getString(R.string.mod_symbolism_path), attemptId,
+                    Context sym_con = createContext(getString(R.string.mod_symbolism_path), mod_attempt_id,
                             getString(R.string.mod_symbolism_name), getString(R.string.mod_symbolism_description));
                     // returned result from launched activity, send experienced and terminated
-                    MyStatementParams sym_exp_params = new MyStatementParams(Verbs.experienced(), sym_act, sym_con);
-                    MyStatementParams sym_terminate_params = new MyStatementParams(Verbs.terminated(), sym_act, sym_con);
+                    MyStatementParams sym_exp_params = new MyStatementParams(actor, Verbs.experienced(), sym_act, sym_con);
+                    MyStatementParams sym_terminate_params = new MyStatementParams(actor, Verbs.terminated(), sym_act, sym_con);
 
                     WriteStatementTask sym_exp_stmt_task = new WriteStatementTask();
                     WriteStatementTask sym_terminate_stmt_task = new WriteStatementTask();
 
-//                    sym_exp_stmt_task.execute(sym_exp_params);
-//                    sym_terminate_stmt_task.execute(sym_terminate_params);
+                    sym_exp_stmt_task.execute(sym_exp_params);
+                    sym_terminate_stmt_task.execute(sym_terminate_params);
                 }
                 break;
         }
@@ -555,13 +548,12 @@ public class MainActivity extends ActionBarActivity {
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
                 getString(R.string.context_name_desc), getString(R.string.context_name_desc)));
 
-//        con_act_list.add(createActivity(getString(R.string.app_activity_iri) + "?attemptId=" + _attempt_id,
-//                getString(R.string.context_name_desc), getString(R.string.context_name_desc)));
+        con_act_list.add(createActivity(getString(R.string.app_activity_iri) + path, name, desc));
         con_acts.setParent(con_act_list);
 
-        ArrayList<Activity> group_act_list = new ArrayList<Activity>();
-        group_act_list.add(createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + mod_attempt_id, name, desc));
-        con_acts.setGrouping(group_act_list);
+//        ArrayList<Activity> group_act_list = new ArrayList<Activity>();
+//        group_act_list.add(createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + mod_attempt_id, name, desc));
+//        con_acts.setGrouping(group_act_list);
         con.setContextActivities(con_acts);
 
         return con;
@@ -668,24 +660,24 @@ public class MainActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         Bundle extras = data.getExtras();
-        String sessionId = "";
+        String attemptId = "";
+        int slide = 0;
         if (extras != null){
-            sessionId = extras.getString("sessionId");
+            attemptId = extras.getString("attemptId", "");
+            slide = extras.getInt("slideId", 0);
         }
         if(resultCode == RESULT_OK) {
-//            sendStatements(requestCode, true, sessionId);
+            sendStatements(requestCode, true, attemptId, slide, attemptId);
         }
         else{
-//            sendSuspendedStatements(requestCode, sessionId);
+//            sendSuspendedStatements(requestCode, attemptId);
         }
     }
 
     private class WriteStatementTask extends AsyncTask<MyStatementParams, Void, Pair<Boolean, String>>{
         protected Pair<Boolean, String> doInBackground(MyStatementParams... params){
-            checkActor();
-            Agent agent = new Agent(_actor_name, "mailto:" + _actor_email);
             Statement stmt = new Statement();
-            stmt.setActor(agent);
+            stmt.setActor(params[0].ag);
             stmt.setVerb(params[0].v);
             stmt.setObject(params[0].a);
             stmt.setContext(params[0].c);
@@ -735,16 +727,19 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private static class MyStatementParams{
+        Agent ag;
         Verb v;
         Activity a;
         Context c;
         String aID;
-        MyStatementParams(Verb v, Activity a, Context c){
+        MyStatementParams(Agent ag, Verb v, Activity a, Context c){
+            this.ag = ag;
             this.v = v;
             this.a = a;
             this.c = c;
         }
-        MyStatementParams(Verb v, String a){
+        MyStatementParams(Agent ag, Verb v, String a){
+            this.ag = ag;
             this.v = v;
             this.aID = a;
         }
