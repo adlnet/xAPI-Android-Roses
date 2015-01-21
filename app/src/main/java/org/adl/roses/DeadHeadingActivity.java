@@ -6,6 +6,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import gov.adlnet.xapi.model.Activity;
+import gov.adlnet.xapi.model.Agent;
+import gov.adlnet.xapi.model.Context;
+import gov.adlnet.xapi.model.Verbs;
+
 public class DeadHeadingActivity extends ContentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -13,9 +18,32 @@ public class DeadHeadingActivity extends ContentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dead_heading);
 
+        // Set the module ID and current slide
         setAndroidId(getIntent().getExtras().getInt("requestCode"));
         setCurrentSlide(getIntent().getExtras().getInt("slideId"));
 
+        // Set or generate the attempt ID
+        String attemptId = getIntent().getExtras().getString("attemptId", null);
+        if (attemptId == null){
+            generateAttempt();
+        }
+        else{
+            setCurrentAttempt(attemptId);
+        }
+
+        // Get actor and send initialized statement and first slide statement
+        Agent actor = getActor();
+        Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_deadheading_path)
+                        +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_deadheading_name),
+                getString(R.string.mod_deadheading_description));
+        Context init_con = createContext(null, null, null, true);
+
+        // send initialize statement
+        MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
+        WriteStatementTask init_stmt_task = new WriteStatementTask();
+        init_stmt_task.execute(init_params);
+
+        // Set onClick listeners
         Button button = (Button) findViewById(R.id.dhSuspend);
         button.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
@@ -41,8 +69,8 @@ public class DeadHeadingActivity extends ContentActivity {
         // the fragment_container FameLayout
         if (findViewById(R.id.textFrag) != null){
 
-            // However, if we'ere being restored from a previous state,
-            // then we don't need to do anything and hsould return or else
+            // However, if we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
             // we could end up with overlapping fragments.
             if (savedInstanceState != null){
                 return;

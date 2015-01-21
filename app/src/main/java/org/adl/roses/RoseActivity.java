@@ -34,40 +34,23 @@ public class RoseActivity extends ContentActivity {
             setCurrentAttempt(attemptId);
         }
 
-
         // Get actor and send initialized statement and first slide statement
         Agent actor = getActor();
         Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path)
                         +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_what_name),
                         getString(R.string.mod_what_description));
-        Context init_con = createContext(null, null, null, null, true);
-
-//        Activity slide_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path) + "#" +
-//                        getCurrentSlide() +"?attemptId=" + getCurrentAttempt(),
-//                        getString(R.string.mod_what_name) + " - Slide " + (getCurrentSlide() + 1),
-//                        getString(R.string.mod_what_description) + " - Slide " + (getCurrentSlide() + 1));
-//        Context what_con = createContext(getString(R.string.mod_what_path), getCurrentAttempt(),
-//                        getString(R.string.mod_what_name), getString(R.string.mod_what_description), false);
+        Context init_con = createContext(null, null, null, true);
 
         // send initialize statement
-        MyStatementParams what_init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
-        WriteStatementTask what_init_stmt_task = new WriteStatementTask();
-        what_init_stmt_task.execute(what_init_params);
-
-        // send read statement
-//        HashMap<String, String> verb_lang = new HashMap<String, String>();
-//        verb_lang.put("en-US", "read");
-//        Verb verb = new Verb("http://example.com/verbs/read", verb_lang);
-//        MyStatementParams what_slide_params = new MyStatementParams(actor, verb, slide_act, what_con);
-//        WriteStatementTask what_slide_stmt_task = new WriteStatementTask();
-//        what_slide_stmt_task.execute(what_slide_params);
-
+        MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
+        WriteStatementTask init_stmt_task = new WriteStatementTask();
+        init_stmt_task.execute(init_params);
 
         // Set onClick listeners
         Button button = (Button) findViewById(R.id.whatSuspend);
         button.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                suspendActivity();
+                returnResult(true);
             }
         });
 
@@ -85,7 +68,6 @@ public class RoseActivity extends ContentActivity {
             }
         });
 
-
         // Check that the activity is u sing he layout version with
         // the fragment_container FameLayout
         if (findViewById(R.id.textFrag) != null){
@@ -102,7 +84,5 @@ public class RoseActivity extends ContentActivity {
             SlideFragment frag = new SlideFragment();
             fragmentTransaction.add(R.id.textFrag, frag).commit();
         }
-        //Set modeule just opened
-//        setJustOpened(true);
     }
 }

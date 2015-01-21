@@ -46,7 +46,6 @@ import gov.adlnet.xapi.model.Verbs;
 public class MainActivity extends ActionBarActivity {
     private String _actor_name;
     private String _actor_email;
-    private Map<String, Integer> _bookmark;
 
     // result codes (based off of order of modules in arrays.xml)
     private final int _result_what = 0;
@@ -204,9 +203,6 @@ public class MainActivity extends ActionBarActivity {
 //    }
 //
     private void sendSuspendedStatements(int moduleId, String attemptId, int slide){
-//        Gson gson = new Gson();
-//        SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
-//        SharedPreferences.Editor editor = prefs.edit();
         checkActor();
         Agent actor = new Agent(_actor_name, "mailto:" + _actor_email);
         switch(moduleId)
@@ -214,102 +210,82 @@ public class MainActivity extends ActionBarActivity {
             case _result_what:
                 final Activity what_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path) +
                         "?attemptId=" + attemptId, getString(R.string.mod_what_name), getString(R.string.mod_what_description));
-                Context what_con = createContext(getString(R.string.mod_what_path), attemptId,
-                        getString(R.string.mod_what_name), getString(R.string.mod_what_description), true);
+                Context what_con = createContext();
                 Result what_result = new Result();
                 what_result.setResponse(Integer.toString(slide));
 
                 MyStatementParams what_sus_params = new MyStatementParams(actor, Verbs.suspended(), what_act, what_con, what_result);
                 WriteStatementTask what_sus_stmt_task = new WriteStatementTask();
                 what_sus_stmt_task.execute(what_sus_params);
-
-//                MyActivityStateParams what_sus_state_params = new MyActivityStateParams(getString(R.string.mod_what_path),
-//                        attemptId);
-//                UpdateActivityStateTask what_update_state_task = new UpdateActivityStateTask();
-//                List<String> what_updated_attempt_list = new ArrayList<String>();
-//                JsonObject whatUpdatedState = new JsonObject();
-//                try {
-//                    what_updated_attempt_list = what_update_state_task.execute(what_sus_state_params).get();
-//                    // Create state with new attempts array
-//                    whatUpdatedState.addProperty("Attempts", gson.toJson(what_updated_attempt_list));
-//                }
-//                catch (Exception ex){
-//                    // Toast here
-//                }
-//
-//                // If it was successful updating current attempt list - write the new state
-//                if (what_updated_attempt_list != null || what_updated_attempt_list.size() > 0){
-//                    WriteActivityStateTask what_write_state_task = new WriteActivityStateTask();
-//                    what_write_state_task.execute(whatUpdatedState);
-//                }
-//                // Either way - set ID locally
-//                JsonArray attempts = whatUpdatedState.get("Attempts").getAsJsonArray();
-//                editor.putString(getString(R.string.preferences_bookmark_key), attempts.get(attempts.size() - 1).getAsString());
-//                editor.commit();
                 break;
             case _result_pruning:
-                final Activity pruning_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_pruning_path),
-                        getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description));
-                Context pruning_con = createContext(getString(R.string.mod_pruning_path), attemptId,
-                        getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description), true);
+                final Activity prun_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_pruning_path) +
+                        "?attemptId=" + attemptId, getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description));
+                Context prun_con = createContext();
+                Result prun_result = new Result();
+                prun_result.setResponse(Integer.toString(slide));
 
-                MyStatementParams pruning_sus_params = new MyStatementParams(actor, Verbs.suspended(), pruning_act, pruning_con);
-                WriteStatementTask pruning_sus_stmt_task = new WriteStatementTask();
-                pruning_sus_stmt_task.execute(pruning_sus_params);
+                MyStatementParams prun_sus_params = new MyStatementParams(actor, Verbs.suspended(), prun_act, prun_con, prun_result);
+                WriteStatementTask prun_sus_stmt_task = new WriteStatementTask();
+                prun_sus_stmt_task.execute(prun_sus_params);
                 break;
             case _result_deadheading:
-                final Activity dh_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_deadheading_path),
-                        getString(R.string.mod_deadheading_name), getString(R.string.mod_deadheading_description));
-                Context dh_con = createContext(getString(R.string.mod_deadheading_path), attemptId,
-                        getString(R.string.mod_deadheading_name), getString(R.string.mod_deadheading_description), true);
+                final Activity dh_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_deadheading_path) +
+                        "?attemptId=" + attemptId, getString(R.string.mod_deadheading_name), getString(R.string.mod_deadheading_description));
+                Context dh_con = createContext();
+                Result dh_result = new Result();
+                dh_result.setResponse(Integer.toString(slide));
 
-                MyStatementParams dh_sus_params = new MyStatementParams(actor, Verbs.suspended(), dh_act, dh_con);
+                MyStatementParams dh_sus_params = new MyStatementParams(actor, Verbs.suspended(), dh_act, dh_con, dh_result);
                 WriteStatementTask dh_sus_stmt_task = new WriteStatementTask();
                 dh_sus_stmt_task.execute(dh_sus_params);
                 break;
             case _result_shearing:
-                final Activity shear_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_shearing_path),
-                        getString(R.string.mod_shearing_name), getString(R.string.mod_shearing_description));
-                Context shear_con = createContext(getString(R.string.mod_shearing_path), attemptId,
-                        getString(R.string.mod_shearing_name), getString(R.string.mod_shearing_description), true);
+                final Activity shear_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_shearing_path) +
+                        "?attemptId=" + attemptId, getString(R.string.mod_shearing_name), getString(R.string.mod_shearing_description));
+                Context shear_con = createContext();
+                Result shear_result = new Result();
+                shear_result.setResponse(Integer.toString(slide));
 
-                MyStatementParams shear_sus_params = new MyStatementParams(actor, Verbs.suspended(), shear_act, shear_con);
+                MyStatementParams shear_sus_params = new MyStatementParams(actor, Verbs.suspended(), shear_act, shear_con, shear_result);
                 WriteStatementTask shear_sus_stmt_task = new WriteStatementTask();
                 shear_sus_stmt_task.execute(shear_sus_params);
                 break;
             case _result_hybrids:
-                final Activity hybrid_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_hybrids_path),
-                        getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description));
-                Context hybrid_con = createContext(getString(R.string.mod_hybrids_path), attemptId,
-                        getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description), true);
+                final Activity hybrid_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_hybrids_path) +
+                        "?attemptId=" + attemptId, getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description));
+                Context hybrid_con = createContext();
+                Result hybrid_result = new Result();
+                hybrid_result.setResponse(Integer.toString(slide));
 
-                MyStatementParams hybrid_sus_params = new MyStatementParams(actor, Verbs.suspended(), hybrid_act, hybrid_con);
+                MyStatementParams hybrid_sus_params = new MyStatementParams(actor, Verbs.suspended(), hybrid_act, hybrid_con, hybrid_result);
                 WriteStatementTask hybrid_sus_stmt_task = new WriteStatementTask();
                 hybrid_sus_stmt_task.execute(hybrid_sus_params);
                 break;
             case _result_styles:
-                final Activity florist_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_styles_path),
-                        getString(R.string.mod_styles_name), getString(R.string.mod_styles_description));
-                Context florist_con = createContext(getString(R.string.mod_styles_path), attemptId,
-                        getString(R.string.mod_styles_name), getString(R.string.mod_styles_description), true);
+                final Activity style_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_styles_path) +
+                        "?attemptId=" + attemptId, getString(R.string.mod_styles_name), getString(R.string.mod_styles_description));
+                Context style_con = createContext();
+                Result style_result = new Result();
+                style_result.setResponse(Integer.toString(slide));
 
-                MyStatementParams florist_sus_params = new MyStatementParams(actor, Verbs.suspended(), florist_act, florist_con);
-                WriteStatementTask florist_sus_stmt_task = new WriteStatementTask();
-                florist_sus_stmt_task.execute(florist_sus_params);
+                MyStatementParams style_sus_params = new MyStatementParams(actor, Verbs.suspended(), style_act, style_con, style_result);
+                WriteStatementTask style_sus_stmt_task = new WriteStatementTask();
+                style_sus_stmt_task.execute(style_sus_params);
                 break;
             case _result_symbolism:
-                final Activity sym_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_symbolism_path),
-                        getString(R.string.mod_symbolism_name), getString(R.string.mod_symbolism_description));
-                Context sym_con = createContext(getString(R.string.mod_symbolism_path), attemptId,
-                        getString(R.string.mod_symbolism_name), getString(R.string.mod_symbolism_description), true);
+                final Activity sym_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_symbolism_path) +
+                        "?attemptId=" + attemptId, getString(R.string.mod_symbolism_name), getString(R.string.mod_symbolism_description));
+                Context sym_con = createContext();
+                Result sym_result = new Result();
+                sym_result.setResponse(Integer.toString(slide));
 
-                MyStatementParams sym_sus_params = new MyStatementParams(actor, Verbs.suspended(), sym_act, sym_con);
+                MyStatementParams sym_sus_params = new MyStatementParams(actor, Verbs.suspended(), sym_act, sym_con, sym_result);
                 WriteStatementTask sym_sus_stmt_task = new WriteStatementTask();
                 sym_sus_stmt_task.execute(sym_sus_params);
                 break;
         }
     }
-
     private void sendStatements(int moduleId, boolean isResult, String mod_attempt_id, int slide){
         checkActor();
         Agent actor = new Agent(_actor_name, "mailto:" + _actor_email);
@@ -326,12 +302,11 @@ public class MainActivity extends ActionBarActivity {
                 }
                 // Returning to main screen from activity
                 else{
-                    final Activity what_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path) + "#" +
-                                    slide +"?attemptId=" + mod_attempt_id,
-                            getString(R.string.mod_what_name), getString(R.string.mod_what_description));
+                    final Activity what_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path)
+                            + "?attemptId=" + mod_attempt_id, getString(R.string.mod_what_name), getString(R.string.mod_what_description));
 
                     // This is called when returning from a rose module - need to keep same attemptId
-                    Context what_con = createContext(null, null, null, null, true);
+                    Context what_con = createContext();
                     // returned result from launched activity, send terminated
                     MyStatementParams what_terminate_params = new MyStatementParams(actor, Verbs.terminated(), what_act, what_con);
 
@@ -340,207 +315,147 @@ public class MainActivity extends ActionBarActivity {
                 }
                 break;
             case _result_pruning:
-                final Activity pruning_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_pruning_path),
-                        getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description));
-
-                if (! isResult){
+                // Launching the activity from main screen list
+                if(! isResult){
                     Intent pruningActivity = new Intent(MainActivity.this, PruningActivity.class);
-                    pruningActivity.putExtra("slideId", 0);
-                    // Initial launch so create attempt id
-                    String pruning_attempt_id = UUID.randomUUID().toString();
-                    Context pruning_con = createContext(getString(R.string.mod_pruning_path), pruning_attempt_id,
-                            getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description), false);
-                    // send initialize statements and launch activity
-                    MyStatementParams pruning_init_params = new MyStatementParams(actor, Verbs.initialized(), pruning_act, pruning_con);
-                    WriteStatementTask pruning_init_task = new WriteStatementTask();
-                    pruning_init_task.execute(pruning_init_params);
-
-                    pruningActivity.putExtra("attemptId", pruning_attempt_id);
+                    pruningActivity.putExtra("slideId", slide);
+                    pruningActivity.putExtra("actorName", _actor_name);
+                    pruningActivity.putExtra("actorEmail", "mailto:" + _actor_email);
                     startActivityForResult(pruningActivity, moduleId);
                 }
+                // Returning to main screen from activity
                 else{
-                    Context pruning_con = createContext(getString(R.string.mod_pruning_path), mod_attempt_id,
-                            getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description), false);
-                    // returned result from launched activity, send experienced and terminated
-                    MyStatementParams pruning_exp_params = new MyStatementParams(actor, Verbs.experienced(), pruning_act, pruning_con);
-                    MyStatementParams pruning_terminate_params = new MyStatementParams(actor, Verbs.terminated(), pruning_act, pruning_con);
+                    final Activity prun_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_pruning_path)
+                            + "?attemptId=" + mod_attempt_id, getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description));
 
-                    WriteStatementTask pruning_exp_task = new WriteStatementTask();
-                    WriteStatementTask pruning_terminate_stmt_task = new WriteStatementTask();
+                    // This is called when returning from a rose module - need to keep same attemptId
+                    Context prun_con = createContext();
+                    // returned result from launched activity, send terminated
+                    MyStatementParams prun_terminate_params = new MyStatementParams(actor, Verbs.terminated(), prun_act, prun_con);
 
-                    pruning_exp_task.execute(pruning_exp_params);
-                    pruning_terminate_stmt_task.execute(pruning_terminate_params);
+                    WriteStatementTask prun_terminate_stmt_task = new WriteStatementTask();
+                    prun_terminate_stmt_task.execute(prun_terminate_params);
                 }
                 break;
             case _result_deadheading:
-                final Activity dh_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_deadheading_path),
-                        getString(R.string.mod_deadheading_name), getString(R.string.mod_deadheading_description));
-
+                // Launching the activity from main screen list
                 if(! isResult){
-                    Intent deadheadingActivity = new Intent(MainActivity.this, DeadHeadingActivity.class);
-                    deadheadingActivity.putExtra("slideId", 0);
-                    String dh_attempt_id = UUID.randomUUID().toString();
-                    Context dh_con = createContext(getString(R.string.mod_deadheading_path), dh_attempt_id,
-                            getString(R.string.mod_deadheading_name), getString(R.string.mod_deadheading_description), false);
-                    // send initialize statements and launch activity
-                    MyStatementParams dh_init_params = new MyStatementParams(actor, Verbs.initialized(), dh_act, dh_con);
-                    WriteStatementTask dh_init_task = new WriteStatementTask();
-                    dh_init_task.execute(dh_init_params);
-
-                    deadheadingActivity.putExtra("attemptId", dh_attempt_id);
-                    startActivityForResult(deadheadingActivity, moduleId);
+                    Intent dhActivity = new Intent(MainActivity.this, DeadHeadingActivity.class);
+                    dhActivity.putExtra("slideId", slide);
+                    dhActivity.putExtra("actorName", _actor_name);
+                    dhActivity.putExtra("actorEmail", "mailto:" + _actor_email);
+                    startActivityForResult(dhActivity, moduleId);
                 }
-                else
-                {
-                    Context dh_con = createContext(getString(R.string.mod_deadheading_path), mod_attempt_id,
-                            getString(R.string.mod_deadheading_name), getString(R.string.mod_deadheading_description), false);
-                    // returned result from launched activity, send experienced and terminated
-                    MyStatementParams dh_exp_params = new MyStatementParams(actor, Verbs.experienced(), dh_act, dh_con);
+                // Returning to main screen from activity
+                else{
+                    final Activity dh_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_deadheading_path)
+                            + "?attemptId=" + mod_attempt_id, getString(R.string.mod_deadheading_name), getString(R.string.mod_deadheading_description));
+
+                    // This is called when returning from a rose module - need to keep same attemptId
+                    Context dh_con = createContext();
+                    // returned result from launched activity, send terminated
                     MyStatementParams dh_terminate_params = new MyStatementParams(actor, Verbs.terminated(), dh_act, dh_con);
 
-                    WriteStatementTask dh_exp_stmt_task = new WriteStatementTask();
                     WriteStatementTask dh_terminate_stmt_task = new WriteStatementTask();
-
-                    dh_exp_stmt_task.execute(dh_exp_params);
                     dh_terminate_stmt_task.execute(dh_terminate_params);
                 }
                 break;
             case _result_shearing:
-                final Activity shear_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_shearing_path),
-                        getString(R.string.mod_shearing_name), getString(R.string.mod_shearing_description));
-
-                if(! isResult) {
-                    Intent shearingActivity = new Intent(MainActivity.this, ShearingActivity.class);
-                    shearingActivity.putExtra("slideId", 0);
-                    String shear_attempt_id = UUID.randomUUID().toString();
-                    Context shear_con = createContext(getString(R.string.mod_shearing_path), shear_attempt_id,
-                            getString(R.string.mod_shearing_name), getString(R.string.mod_shearing_description), false);
-                    // send initialize statements and launch activity
-                    MyStatementParams shear_init_params = new MyStatementParams(actor, Verbs.initialized(), shear_act, shear_con);
-                    WriteStatementTask shear_init_task = new WriteStatementTask();
-                    shear_init_task.execute(shear_init_params);
-
-                    shearingActivity.putExtra("attemptId", shear_attempt_id);
-                    startActivityForResult(shearingActivity, moduleId);
+                // Launching the activity from main screen list
+                if(! isResult){
+                    Intent shearActivity = new Intent(MainActivity.this, ShearingActivity.class);
+                    shearActivity.putExtra("slideId", slide);
+                    shearActivity.putExtra("actorName", _actor_name);
+                    shearActivity.putExtra("actorEmail", "mailto:" + _actor_email);
+                    startActivityForResult(shearActivity, moduleId);
                 }
-                else
-                {
-                    Context shear_con = createContext(getString(R.string.mod_shearing_path), mod_attempt_id,
-                            getString(R.string.mod_shearing_name), getString(R.string.mod_shearing_description), false);
-                    // returned result from launched activity, send experienced and terminated
-                    MyStatementParams shear_exp_params = new MyStatementParams(actor, Verbs.experienced(), shear_act, shear_con);
+                // Returning to main screen from activity
+                else{
+                    final Activity shear_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_shearing_path)
+                            + "?attemptId=" + mod_attempt_id, getString(R.string.mod_shearing_name), getString(R.string.mod_shearing_description));
+
+                    // This is called when returning from a rose module - need to keep same attemptId
+                    Context shear_con = createContext();
+                    // returned result from launched activity, send terminated
                     MyStatementParams shear_terminate_params = new MyStatementParams(actor, Verbs.terminated(), shear_act, shear_con);
 
-                    WriteStatementTask shear_exp_stmt_task = new WriteStatementTask();
                     WriteStatementTask shear_terminate_stmt_task = new WriteStatementTask();
-
-                    shear_exp_stmt_task.execute(shear_exp_params);
                     shear_terminate_stmt_task.execute(shear_terminate_params);
                 }
                 break;
             case _result_hybrids:
-                final Activity hybrid_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_hybrids_path),
-                        getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description));
-
-                if(! isResult) {
-                    Intent hybridsActivity = new Intent(MainActivity.this, HybridsActivity.class);
-                    hybridsActivity.putExtra("slideId", 0);
-                    String hybrid_attempt_id = UUID.randomUUID().toString();
-                    Context hybrid_con = createContext(getString(R.string.mod_hybrids_path), hybrid_attempt_id,
-                            getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description), false);
-                    // send initialize statements and launch activity
-                    MyStatementParams hybrid_init_params = new MyStatementParams(actor, Verbs.initialized(), hybrid_act, hybrid_con);
-                    WriteStatementTask hybrid_init_task = new WriteStatementTask();
-                    hybrid_init_task.execute(hybrid_init_params);
-
-                    hybridsActivity.putExtra("attemptId", hybrid_attempt_id);
-                    startActivityForResult(hybridsActivity, moduleId);
+                // Launching the activity from main screen list
+                if(! isResult){
+                    Intent hybridActivity = new Intent(MainActivity.this, HybridsActivity.class);
+                    hybridActivity.putExtra("slideId", slide);
+                    hybridActivity.putExtra("actorName", _actor_name);
+                    hybridActivity.putExtra("actorEmail", "mailto:" + _actor_email);
+                    startActivityForResult(hybridActivity, moduleId);
                 }
-                else
-                {
-                    Context hybrid_con = createContext(getString(R.string.mod_hybrids_path), mod_attempt_id,
-                            getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description), false);
-                    // returned result from launched activity, send experienced and terminated
-                    MyStatementParams hybrid_exp_params = new MyStatementParams(actor, Verbs.experienced(), hybrid_act, hybrid_con);
+                // Returning to main screen from activity
+                else{
+                    final Activity hybrid_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_hybrids_path)
+                            + "?attemptId=" + mod_attempt_id, getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description));
+
+                    // This is called when returning from a rose module - need to keep same attemptId
+                    Context hybrid_con = createContext();
+                    // returned result from launched activity, send terminated
                     MyStatementParams hybrid_terminate_params = new MyStatementParams(actor, Verbs.terminated(), hybrid_act, hybrid_con);
 
-                    WriteStatementTask hybrid_exp_stmt_task = new WriteStatementTask();
                     WriteStatementTask hybrid_terminate_stmt_task = new WriteStatementTask();
-
-                    hybrid_exp_stmt_task.execute(hybrid_exp_params);
                     hybrid_terminate_stmt_task.execute(hybrid_terminate_params);
                 }
                 break;
             case _result_styles:
-                final Activity florist_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_styles_path),
-                        getString(R.string.mod_styles_name), getString(R.string.mod_styles_description));
-
-                if(! isResult) {
-                    Intent floristryActivity = new Intent(MainActivity.this, FloristryActivity.class);
-                    floristryActivity.putExtra("sessionId", 0);
-                    String florist_attempt_id = UUID.randomUUID().toString();
-                    Context florist_con = createContext(getString(R.string.mod_styles_path), florist_attempt_id,
-                            getString(R.string.mod_styles_name), getString(R.string.mod_styles_description), false);
-                    // send initialize statements and launch activity
-                    MyStatementParams florist_init_params = new MyStatementParams(actor, Verbs.initialized(), florist_act, florist_con);
-                    WriteStatementTask florist_init_task = new WriteStatementTask();
-                    florist_init_task.execute(florist_init_params);
-
-                    floristryActivity.putExtra("attemptId", florist_attempt_id);
-                    startActivityForResult(floristryActivity, moduleId);
+                // Launching the activity from main screen list
+                if(! isResult){
+                    Intent stylesActivity = new Intent(MainActivity.this, FloristryActivity.class);
+                    stylesActivity.putExtra("slideId", slide);
+                    stylesActivity.putExtra("actorName", _actor_name);
+                    stylesActivity.putExtra("actorEmail", "mailto:" + _actor_email);
+                    startActivityForResult(stylesActivity, moduleId);
                 }
-                else
-                {
-                    Context florist_con = createContext(getString(R.string.mod_styles_path), mod_attempt_id,
-                            getString(R.string.mod_styles_name), getString(R.string.mod_styles_description), false);
-                    // returned result from launched activity, send experienced and terminated
-                    MyStatementParams florist_exp_params = new MyStatementParams(actor, Verbs.experienced(), florist_act, florist_con);
-                    MyStatementParams florist_terminate_params = new MyStatementParams(actor, Verbs.terminated(), florist_act, florist_con);
+                // Returning to main screen from activity
+                else{
+                    final Activity styles_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_styles_path)
+                            + "?attemptId=" + mod_attempt_id, getString(R.string.mod_styles_name), getString(R.string.mod_styles_description));
 
-                    WriteStatementTask florist_exp_stmt_task = new WriteStatementTask();
-                    WriteStatementTask florist_terminate_stmt_task = new WriteStatementTask();
+                    // This is called when returning from a rose module - need to keep same attemptId
+                    Context styles_con = createContext();
+                    // returned result from launched activity, send terminated
+                    MyStatementParams styles_terminate_params = new MyStatementParams(actor, Verbs.terminated(), styles_act, styles_con);
 
-                    florist_exp_stmt_task.execute(florist_exp_params);
-                    florist_terminate_stmt_task.execute(florist_terminate_params);
+                    WriteStatementTask styles_terminate_stmt_task = new WriteStatementTask();
+                    styles_terminate_stmt_task.execute(styles_terminate_params);
                 }
                 break;
             case _result_symbolism:
-                final Activity sym_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_symbolism_path),
-                        getString(R.string.mod_symbolism_name), getString(R.string.mod_symbolism_description));
-
-                if(! isResult) {
-                    Intent symbolismActivity = new Intent(MainActivity.this, SymbolismActivity.class);
-                    symbolismActivity.putExtra("slideId", 0);
-                    String sym_attempt_id = UUID.randomUUID().toString();
-                    Context sym_con = createContext(getString(R.string.mod_symbolism_path), sym_attempt_id,
-                            getString(R.string.mod_symbolism_name), getString(R.string.mod_symbolism_description), false);
-                    // send initialize statements and launch activity
-                    MyStatementParams sym_init_params = new MyStatementParams(actor, Verbs.initialized(), sym_act, sym_con);
-                    WriteStatementTask sym_init_task = new WriteStatementTask();
-                    sym_init_task.execute(sym_init_params);
-
-                    symbolismActivity.putExtra("sessionId", sym_attempt_id);
-                    startActivityForResult(symbolismActivity, moduleId);
+                // Launching the activity from main screen list
+                if(! isResult){
+                    Intent symActivity = new Intent(MainActivity.this, SymbolismActivity.class);
+                    symActivity.putExtra("slideId", slide);
+                    symActivity.putExtra("actorName", _actor_name);
+                    symActivity.putExtra("actorEmail", "mailto:" + _actor_email);
+                    startActivityForResult(symActivity, moduleId);
                 }
-                else
-                {
-                    Context sym_con = createContext(getString(R.string.mod_symbolism_path), mod_attempt_id,
-                            getString(R.string.mod_symbolism_name), getString(R.string.mod_symbolism_description), false);
-                    // returned result from launched activity, send experienced and terminated
-                    MyStatementParams sym_exp_params = new MyStatementParams(actor, Verbs.experienced(), sym_act, sym_con);
+                // Returning to main screen from activity
+                else{
+                    final Activity sym_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_symbolism_path)
+                            + "?attemptId=" + mod_attempt_id, getString(R.string.mod_symbolism_name), getString(R.string.mod_symbolism_description));
+
+                    // This is called when returning from a rose module - need to keep same attemptId
+                    Context sym_con = createContext();
+                    // returned result from launched activity, send terminated
                     MyStatementParams sym_terminate_params = new MyStatementParams(actor, Verbs.terminated(), sym_act, sym_con);
 
-                    WriteStatementTask sym_exp_stmt_task = new WriteStatementTask();
                     WriteStatementTask sym_terminate_stmt_task = new WriteStatementTask();
-
-                    sym_exp_stmt_task.execute(sym_exp_params);
                     sym_terminate_stmt_task.execute(sym_terminate_params);
                 }
                 break;
         }
     }
 
-    private Context createContext(String path, String mod_attempt_id, String name, String desc, boolean interrupt){
+    private Context createContext(){
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
 
@@ -548,15 +463,7 @@ public class MainActivity extends ActionBarActivity {
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
                 getString(R.string.context_name_desc), getString(R.string.context_name_desc)));
 
-        // If suspended or terminated don't include the module in context
-        if (!interrupt){
-            con_act_list.add(createActivity(getString(R.string.app_activity_iri) + path, name, desc));
-        }
         con_acts.setParent(con_act_list);
-
-//        ArrayList<Activity> group_act_list = new ArrayList<Activity>();
-//        group_act_list.add(createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + mod_attempt_id, name, desc));
-//        con_acts.setGrouping(group_act_list);
         con.setContextActivities(con_acts);
         return con;
     }

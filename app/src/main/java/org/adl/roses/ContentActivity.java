@@ -30,7 +30,6 @@ public abstract class ContentActivity extends ActionBarActivity{
     private int android_id;
     private int current_slide;
     private String attempt;
-    private boolean justOpened;
 
     protected int getAndroidId(){
         return this.android_id;
@@ -47,14 +46,10 @@ public abstract class ContentActivity extends ActionBarActivity{
     protected String getCurrentAttempt(){return this.attempt;}
     protected void setCurrentAttempt(String att){this.attempt = att;}
     protected void generateAttempt(){this.attempt = UUID.randomUUID().toString();}
-    protected boolean getJustOpened(){return this.justOpened;}
-    protected void setJustOpened(boolean opened){this.justOpened = opened;}
 
     protected void previousSlide(){
         // If first opening the module - don't send extra read statement for current slide
-        if (!getJustOpened()){
-            sendSlideChangeStatement();
-        }
+        sendSlideChangeStatement();
         switch (getCurrentSlide()){
             case 0:
                 setCurrentSlide(2);
@@ -67,15 +62,10 @@ public abstract class ContentActivity extends ActionBarActivity{
                 break;
         }
         replaceFragment();
-        if (getJustOpened()){
-            setJustOpened(false);
-        }
     }
     protected void nextSlide(){
         // If first opening the module - don't send extra read statement for current slide
-        if (!getJustOpened()){
-            sendSlideChangeStatement();
-        }
+        sendSlideChangeStatement();
         switch (getCurrentSlide()){
             case 0:
                 setCurrentSlide(1);
@@ -88,9 +78,6 @@ public abstract class ContentActivity extends ActionBarActivity{
                 break;
         }
         replaceFragment();
-        if (getJustOpened()){
-            setJustOpened(false);
-        }
     }
     protected void replaceFragment(){
         FragmentManager fragmentManager = getFragmentManager();
@@ -100,27 +87,66 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
 
     protected void sendSlideChangeStatement(){
-        Activity what_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path) + "#" +
-                        getCurrentSlide() + "?attemptId=" + getCurrentAttempt(),
-                        getString(R.string.mod_what_name) + " - Slide " + (getCurrentSlide() + 1),
-                        getString(R.string.mod_what_description) + " - Slide " + (getCurrentSlide() + 1));
-        Context what_con = createContext(getString(R.string.mod_what_path), getCurrentAttempt(),
-                getString(R.string.mod_what_name), getString(R.string.mod_what_description), false);
+        String path = "";
+        String name = "";
+        String desc = "";
 
+        switch(getAndroidId()){
+            case 0:
+                path = getString(R.string.mod_what_path);
+                name = getString(R.string.mod_what_name);
+                desc = getString(R.string.mod_what_description);
+                break;
+            case 1:
+                path = getString(R.string.mod_pruning_path);
+                name = getString(R.string.mod_pruning_name);
+                desc = getString(R.string.mod_pruning_description);
+                break;
+            case 2:
+                path = getString(R.string.mod_deadheading_path);
+                name = getString(R.string.mod_deadheading_name);
+                desc = getString(R.string.mod_deadheading_description);
+                break;
+            case 3:
+                path = getString(R.string.mod_shearing_path);
+                name = getString(R.string.mod_shearing_name);
+                desc = getString(R.string.mod_shearing_description);
+                break;
+            case 4:
+                path = getString(R.string.mod_hybrids_path);
+                name = getString(R.string.mod_hybrids_name);
+                desc = getString(R.string.mod_hybrids_description);
+                break;
+            case 5:
+                path = getString(R.string.mod_styles_path);
+                name = getString(R.string.mod_styles_name);
+                desc = getString(R.string.mod_styles_description);
+                break;
+            case 6:
+                path = getString(R.string.mod_symbolism_path);
+                name = getString(R.string.mod_symbolism_name);
+                desc = getString(R.string.mod_symbolism_description);
+                break;
+        }
+        Activity slide_act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
+                        getCurrentSlide() + "?attemptId=" + getCurrentAttempt(),
+                         name + " - Slide " + (getCurrentSlide() + 1),
+                         desc + " - Slide " + (getCurrentSlide() + 1));
+        Context slide_con = createContext(path, name, desc, false);
 
         HashMap<String, String> verb_lang = new HashMap<String, String>();
         verb_lang.put("en-US", "read");
         Verb verb = new Verb("http://example.com/verbs/read", verb_lang);
         Agent actor = getActor();
-        MyStatementParams what_init_params = new MyStatementParams(actor, verb, what_act, what_con);
-        WriteStatementTask what_init_stmt_task = new WriteStatementTask();
-        what_init_stmt_task.execute(what_init_params);
+        MyStatementParams slide_init_params = new MyStatementParams(actor, verb, slide_act, slide_con);
+        WriteStatementTask slide_init_stmt_task = new WriteStatementTask();
+        slide_init_stmt_task.execute(slide_init_params);
     }
 
     protected Agent getActor(){
         return new Agent(getIntent().getExtras().getString("actorName"), "mailto:" + getIntent().getExtras().getString("actorEmail"));
     }
-    protected Context createContext(String path, String mod_attempt_id, String name, String desc, boolean init){
+    protected Context createContext(String path, String name, String desc, boolean init){
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
 
@@ -132,10 +158,6 @@ public abstract class ContentActivity extends ActionBarActivity{
             con_act_list.add(createActivity(getString(R.string.app_activity_iri) + path, name, desc));
         }
         con_acts.setParent(con_act_list);
-
-//        ArrayList<Activity> group_act_list = new ArrayList<Activity>();
-//        group_act_list.add(createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + mod_attempt_id, name, desc));
-//        con_acts.setGrouping(group_act_list);
         con.setContextActivities(con_acts);
         return con;
     }
@@ -147,7 +169,6 @@ public abstract class ContentActivity extends ActionBarActivity{
         act_def.setDescription(new HashMap<String, String>());
         act_def.getDescription().put("en-US", desc);
         act.setDefinition(act_def);
-
         return act;
     }
 
@@ -177,13 +198,6 @@ public abstract class ContentActivity extends ActionBarActivity{
         returnResult(false);
     }
 
-    protected void suspendActivity(){
-        // If just opened, it sends a statment for that slide so don't send another one
-//        if (!getJustOpened()){
-//            sendSlideChangeStatement();
-//        }
-        returnResult(true);
-    }
     protected void returnResult(boolean suspended){
         Intent returnIntent = new Intent();
         returnIntent.putExtra("attemptId", getCurrentAttempt());
@@ -231,17 +245,12 @@ public abstract class ContentActivity extends ActionBarActivity{
         Verb v;
         Activity a;
         Context c;
-        String aID;
+
         MyStatementParams(Agent ag, Verb v, Activity a, Context c){
             this.ag = ag;
             this.v = v;
             this.a = a;
             this.c = c;
-        }
-        MyStatementParams(Agent ag, Verb v, String a){
-            this.ag = ag;
-            this.v = v;
-            this.aID = a;
         }
     }
 }
