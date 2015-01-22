@@ -19,7 +19,6 @@ public class ShearingActivity extends ContentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shearing);
 
-
         // Set the module ID and current slide
         setAndroidId(getIntent().getExtras().getInt("requestCode"));
         setCurrentSlide(getIntent().getExtras().getInt("slideId"));
@@ -28,22 +27,21 @@ public class ShearingActivity extends ContentActivity {
         String attemptId = getIntent().getExtras().getString("attemptId", null);
         if (attemptId == null){
             generateAttempt();
+            // Get actor and send initialized statement and first slide statement
+            Agent actor = getActor();
+            Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_shearing_path)
+                            +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_shearing_name),
+                    getString(R.string.mod_shearing_description));
+            Context init_con = createContext(null, null, null, true);
+
+            // send initialize statement
+            MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
+            WriteStatementTask init_stmt_task = new WriteStatementTask();
+            init_stmt_task.execute(init_params);
         }
         else{
             setCurrentAttempt(attemptId);
         }
-
-        // Get actor and send initialized statement and first slide statement
-        Agent actor = getActor();
-        Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_shearing_path)
-                        +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_shearing_name),
-                getString(R.string.mod_shearing_description));
-        Context init_con = createContext(null, null, null, true);
-
-        // send initialize statement
-        MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
-        WriteStatementTask init_stmt_task = new WriteStatementTask();
-        init_stmt_task.execute(init_params);
 
         // Set onClick listeners
         Button button = (Button) findViewById(R.id.shearSuspend);

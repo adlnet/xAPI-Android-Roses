@@ -240,7 +240,7 @@ public abstract class ContentActivity extends ActionBarActivity{
             }
         }
     }
-    protected static class MyStatementParams{
+    protected class MyStatementParams{
         Agent ag;
         Verb v;
         Activity a;

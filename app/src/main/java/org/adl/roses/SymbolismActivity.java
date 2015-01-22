@@ -27,22 +27,21 @@ public class SymbolismActivity extends ContentActivity {
         String attemptId = getIntent().getExtras().getString("attemptId", null);
         if (attemptId == null){
             generateAttempt();
+            // Get actor and send initialized statement and first slide statement
+            Agent actor = getActor();
+            Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_symbolism_path)
+                            +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_symbolism_name),
+                    getString(R.string.mod_symbolism_description));
+            Context init_con = createContext(null, null, null, true);
+
+            // send initialize statement
+            MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
+            WriteStatementTask init_stmt_task = new WriteStatementTask();
+            init_stmt_task.execute(init_params);
         }
         else{
             setCurrentAttempt(attemptId);
         }
-
-        // Get actor and send initialized statement and first slide statement
-        Agent actor = getActor();
-        Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_symbolism_path)
-                        +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_symbolism_name),
-                getString(R.string.mod_symbolism_description));
-        Context init_con = createContext(null, null, null, true);
-
-        // send initialize statement
-        MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
-        WriteStatementTask init_stmt_task = new WriteStatementTask();
-        init_stmt_task.execute(init_params);
 
         // Set onClick listeners
         Button button = (Button) findViewById(R.id.symSuspend);
