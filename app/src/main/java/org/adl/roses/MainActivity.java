@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,15 +92,89 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        getBookmarkFromStatements();
-        getBookmarkFromLocalStorage();
+        // Try getting bookmark from statements first, if not successful try activity states,
+        // if both fail try local storage
+//        getBookmarkFromStatements();
+        getBookmarkFromActivityState();
+//        getBookmarkFromLocalStorage(prefs);
     }
 
-    private void getBookmarkFromLocalStorage(){
+    private void getBookmarkFromLocalStorage(SharedPreferences prefs){
         // Look for bookmark data in local storage
         checkActor();
         Agent actor = new Agent(_actor_name, "mailto:" + _actor_email);
-        
+
+        int moduleId = prefs.getInt("moduleId", -1);
+        int slide = prefs.getInt("slide", -1);
+        String attemptId = prefs.getString("attemptId", null);
+        String bookmarked_user = prefs.getString("bookmarkedUser", null);
+
+        if (moduleId > -1 && actor.getMbox().equals(bookmarked_user)){
+            sendResumeStatements(moduleId, attemptId, slide, actor);
+        }
+    }
+    private void getBookmarkFromActivityState() {
+        checkActor();
+        Agent actor = new Agent(_actor_name, "mailto:" + _actor_email);
+        // Get activity state for app IRI as activityID and SCORM activity state IRI as stateID
+        // If there are attempts, they will be listed in an Attempts array
+        MyActivityStateParams get_as_params = new MyActivityStateParams(actor, null, null, getString(R.string.scorm_profile_activity_state_id),
+                getString(R.string.app_activity_iri));
+        GetActivityStateTask get_sus_as_task = new GetActivityStateTask();
+        MyReturnActivityStateData sus_result = null;
+        try{
+            sus_result = get_sus_as_task.execute(get_as_params).get();
+        }
+        catch (Exception ex){
+            // Will get thrown in GetActivityStateTask
+        }
+
+        JsonObject state = sus_result.state;
+        String bookmarkID = "";
+        // No state could exist on first run
+        if (state != null){
+            try{
+                // Get the attempts element from the state which will be an array itself
+                JsonArray attempts = state.get("Attempts").getAsJsonArray();
+                if (attempts.size() > 0){
+                    // Get the last attempt
+                    bookmarkID = attempts.get(attempts.size() - 1).getAsString();
+                }
+            }
+            catch (Exception ex){
+                Toast.makeText(getApplicationContext(), "Couldn't retrieve attempts from state: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
+
+        // If there was an existing attempt IRI
+        if (!bookmarkID.isEmpty()){
+            // Get activity state with attempt IRI as activityID and SCORM attempt
+            // state IRI as stateID to get single activity attempt state
+            MyActivityStateParams get_singular_as_params = new MyActivityStateParams(actor, null, null,
+                    getString(R.string.scorm_profile_attempt_state_id), bookmarkID);
+            GetActivityStateTask get_singular_as_task = new GetActivityStateTask();
+            MyReturnActivityStateData singular_sus_result = null;
+            try{
+                singular_sus_result = get_singular_as_task.execute(get_singular_as_params).get();
+            }
+            catch (Exception ex){
+                // Will get thrown in GetActivityStateTask
+            }
+
+            // Get bookmark data from the singular attempt state
+            JsonObject sing_state = singular_sus_result.state;
+            try{
+                String[] bookmark = sing_state.get("location").getAsString().split(" ");
+                int bookmark_module = Integer.parseInt(bookmark[0]);
+                int bookmark_slide = Integer.parseInt(bookmark[1]);
+                JsonObject s_data = sing_state.get("suspend_data").getAsJsonArray().get(0).getAsJsonObject();
+                String attempt_id = s_data.get("data").getAsString();
+                sendResumeStatements(bookmark_module, attempt_id, bookmark_slide, actor);
+            }
+            catch (Exception ex){
+                Toast.makeText(getApplicationContext(), "Couldn't read activity state attempt data: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
     }
     private void getBookmarkFromStatements(){
         // Look for suspended statement for bookmark
@@ -127,7 +203,7 @@ public class MainActivity extends ActionBarActivity {
                     sendResumeStatements(bookmark_module, attempt_id, bookmark_slide, actor);
                 }
                 catch (Exception ex){
-                    Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Couldn't read result extensions: " + ex.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -251,6 +327,16 @@ public class MainActivity extends ActionBarActivity {
         MyStatementParams sus_params = new MyStatementParams(actor, Verbs.suspended(), sus_act, con, result);
         WriteStatementTask sus_stmt_task = new WriteStatementTask();
         sus_stmt_task.execute(sus_params);
+
+        updateActivityState(sus_act, actor, moduleId, slide, attemptId);
+
+        SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("moduleId", moduleId);
+        editor.putInt("slide", slide);
+        editor.putString("attemptId", attemptId);
+        editor.putString("bookmarkedUser", actor.getMbox());
+        editor.commit();
     }
     private void sendStatements(int moduleId, boolean isResult, String mod_attempt_id, int slide){
         checkActor();
@@ -319,7 +405,79 @@ public class MainActivity extends ActionBarActivity {
             MyStatementParams terminate_params = new MyStatementParams(actor, Verbs.terminated(), mod_act, con);
             WriteStatementTask terminate_stmt_task = new WriteStatementTask();
             terminate_stmt_task.execute(terminate_params);
+
+            // Clear local bookmark storage when module is terminated
+            SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.remove("moduleId");
+            editor.remove("slide");
+            editor.remove("attemptId");
+            editor.remove("bookmarkedUser");
+            editor.commit();
         }
+    }
+
+    private void updateActivityState(Activity sus_act, Agent actor, int moduleId, int slide, String attemptId){
+        // Write attempt state
+        JsonObject attempt_state = new JsonObject();
+        attempt_state.addProperty("location", String.format("%s %s", moduleId, slide));
+        JsonObject suspend_obj = new JsonObject();
+        suspend_obj.addProperty("type", getString(R.string.scorm_profile_adl_suspend_data));
+        suspend_obj.addProperty("id", sus_act.getId());
+        suspend_obj.addProperty("data", attemptId);
+        JsonArray suspend_arr = new JsonArray();
+        suspend_arr.add(suspend_obj);
+        attempt_state.add("suspend_data", suspend_arr);
+        // Write attempt state with attemptID as registration, SCORM attempt state IRI
+        // as stateID and the suspended activity's IRI as the activityId
+        MyActivityStateParams as_sus_params = new MyActivityStateParams(actor, attempt_state, attemptId, getString(R.string.scorm_profile_attempt_state_id),
+                sus_act.getId());
+        WriteActivityStateTask sus_as_task = new WriteActivityStateTask();
+        sus_as_task.execute(as_sus_params);
+
+        // Update activity state
+        // Get existing activity state by using SCORM activity state IRI as stateID
+        // and app IRI as activityId
+        MyActivityStateParams get_as_params = new MyActivityStateParams(actor, null, null, getString(R.string.scorm_profile_activity_state_id),
+                getString(R.string.app_activity_iri));
+        GetActivityStateTask get_sus_as_task = new GetActivityStateTask();
+        MyReturnActivityStateData sus_result = null;
+        try{
+            sus_result = get_sus_as_task.execute(get_as_params).get();
+        }
+        catch (Exception ex){
+            // Will get thrown in GetActivityStateTask
+        }
+
+        JsonObject act_state = sus_result.state;
+        JsonArray attempts = new JsonArray();
+        // State could not exist first time, have to make it
+        if (act_state != null){
+            try{
+                // Get the attempts element from the state
+                attempts = act_state.get("Attempts").getAsJsonArray();
+            }
+            catch (Exception ex){
+                Toast.makeText(getApplicationContext(), "Error with updating activity state: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
+        // If there is an existing activity state but it doesn't have the attempts field
+        // (which is wrong), this will add it
+        // Update existing attempts array with the new attempt
+        JsonPrimitive element = new JsonPrimitive(sus_act.getId());
+        attempts.add(element);
+
+        JsonObject updated_state = new JsonObject();
+        updated_state.add("Attempts", attempts);
+
+        // Write attempt state with updated attempts array
+        // Write to attempt state that has attemptID as registration, SCORM activity state IRI
+        // as stateID and app IRI as activityID
+        MyActivityStateParams write_updated_as_params = new MyActivityStateParams(actor, updated_state, attemptId,
+                getString(R.string.scorm_profile_activity_state_id), getString(R.string.app_activity_iri));
+        WriteActivityStateTask write_updated_as_task = new WriteActivityStateTask();
+        write_updated_as_task.execute(write_updated_as_params);
+
     }
 
     private Context createContext(String registration){
@@ -498,10 +656,10 @@ public class MainActivity extends ActionBarActivity {
             return new MyReturnStatementData(success, result, stmt_result);
         }
 
-        protected void onPostExecute(Pair<Boolean, String> p){
-            if (!p.first){
+        protected void onPostExecute(MyReturnStatementData sd){
+            if (!sd.success){
                 String msg = "Get Statement Error: ";
-                Toast.makeText(getApplicationContext(), msg + p.second, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), msg + sd.result, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -541,44 +699,41 @@ public class MainActivity extends ActionBarActivity {
             this.stmt_result = sr;
         }
     }
-    private class GetActivityStateTask extends AsyncTask<Void, Void, String>{
-        protected String doInBackground(Void... params){
-            checkActor();
-            Agent actor = new Agent(_actor_name, "mailto:" + _actor_email);
-            String bookmarkID = "";
+    private class GetActivityStateTask extends AsyncTask<MyActivityStateParams, Void, MyReturnActivityStateData>{
+        protected MyReturnActivityStateData doInBackground(MyActivityStateParams... params){
+            Debug.waitForDebugger();
+            JsonObject state;
+            boolean success = true;
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
                 // This will retrieve an array of states (should only be one in the array)
-                JsonObject state = ac.getActivityState(getString(R.string.app_activity_iri), actor, null,
-                        getString(R.string.scorm_profile_activity_state_id));
-                // Get the attempts element from the state which will be an array itself
-                JsonArray attempts = state.get("Attempts").getAsJsonArray();
-
-                if (attempts.size() > 0){
-                    // Get the last attempt
-                    bookmarkID = attempts.get(attempts.size() - 1).getAsString();
-                }
+                state = ac.getActivityState(params[0].actID, params[0].a, params[0].r, params[0].stId);
             }
             catch (Exception ex){
-                System.out.println(ex.getMessage());
+                success = false;
+                state = null;
             }
-            return bookmarkID;
+            return new MyReturnActivityStateData(success, state);
+        }
+
+        protected void onPostExecute(MyReturnActivityStateData asd){
+            if (!asd.success){
+                Toast.makeText(getApplicationContext(), "Error with retrieving activity states", Toast.LENGTH_LONG).show();
+            }
         }
     }
-    private class WriteActivityStateTask extends AsyncTask<JsonObject, Void, Pair<Boolean, String>>{
-        protected Pair<Boolean, String> doInBackground(JsonObject... params){
-            checkActor();
-            Agent actor = new Agent(_actor_name, "mailto:" + _actor_email);
-            boolean success = true;
+    private class WriteActivityStateTask extends AsyncTask<MyActivityStateParams, Void, Pair<Boolean, String>>{
+        protected Pair<Boolean, String> doInBackground(MyActivityStateParams... params){
+            Debug.waitForDebugger();
+            boolean success;
             String content;
-
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
-                success = ac.postActivityState(getString(R.string.app_activity_iri), actor, null,
-                        getString(R.string.scorm_profile_activity_state_id), params[0]);
-                content = "success";
+                success = ac.postActivityState(params[0].actID, params[0].a, params[0].r,
+                        params[0].stId, params[0].state);
+                content = "";
             }
             catch (Exception ex){
                 success = false;
@@ -592,6 +747,30 @@ public class MainActivity extends ActionBarActivity {
                 String msg = "Write State Error: ";
                 Toast.makeText(getApplicationContext(), msg + p.second, Toast.LENGTH_LONG).show();
             }
+        }
+    }
+    private class MyActivityStateParams{
+        Agent a;
+        JsonObject state;
+        String r;
+        String actID;
+        String stId;
+
+        MyActivityStateParams(Agent a, JsonObject s, String r, String stID, String actID){
+            this.a = a;
+            this.state = s;
+            this.r = r;
+            this.actID = actID;
+            this.stId = stID;
+        }
+    }
+    private class MyReturnActivityStateData{
+        boolean success;
+        JsonObject state;
+
+        MyReturnActivityStateData(boolean s, JsonObject state){
+            this.success = s;
+            this.state = state;
         }
     }
 }
