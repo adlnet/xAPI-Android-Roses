@@ -10,10 +10,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import gov.adlnet.xapi.client.ActivityClient;
 import gov.adlnet.xapi.client.StatementClient;
 import gov.adlnet.xapi.model.Activity;
 import gov.adlnet.xapi.model.ActivityDefinition;
@@ -144,7 +147,7 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
 
     protected Agent getActor(){
-        return new Agent(getIntent().getExtras().getString("actorName"), "mailto:" + getIntent().getExtras().getString("actorEmail"));
+        return new Agent(getIntent().getExtras().getString("actorName"), getIntent().getExtras().getString("actorEmail"));
     }
     protected Context createContext(String path, String name, String desc, boolean init){
         Context con = new Context();
@@ -251,6 +254,78 @@ public abstract class ContentActivity extends ActionBarActivity{
             this.v = v;
             this.a = a;
             this.c = c;
+        }
+    }
+    protected class GetActivityStateTask extends AsyncTask<MyActivityStateParams, Void, MyReturnActivityStateData>{
+        protected MyReturnActivityStateData doInBackground(MyActivityStateParams... params){
+            JsonObject state;
+            boolean success = true;
+            try{
+                ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
+                        getString(R.string.lrs_password));
+                // This will retrieve an array of states (should only be one in the array)
+                state = ac.getActivityState(params[0].actID, params[0].a, params[0].r, params[0].stId);
+            }
+            catch (Exception ex){
+                success = false;
+                state = null;
+            }
+            return new MyReturnActivityStateData(success, state);
+        }
+
+        protected void onPostExecute(MyReturnActivityStateData asd){
+            if (!asd.success){
+                Toast.makeText(getApplicationContext(), "No activity state returned (could not exist yet)", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+    protected class WriteActivityStateTask extends AsyncTask<MyActivityStateParams, Void, Pair<Boolean, String>>{
+        protected Pair<Boolean, String> doInBackground(MyActivityStateParams... params){
+            boolean success;
+            String content;
+            try{
+                ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
+                        getString(R.string.lrs_password));
+                success = ac.postActivityState(params[0].actID, params[0].a, params[0].r,
+                        params[0].stId, params[0].state);
+                content = "";
+            }
+            catch (Exception ex){
+                success = false;
+                content = ex.getLocalizedMessage();
+            }
+            return new Pair<Boolean, String>(success, content);
+        }
+
+        protected void onPostExecute(Pair<Boolean, String> p){
+            if (!p.first){
+                String msg = "Write State Error: ";
+                Toast.makeText(getApplicationContext(), msg + p.second, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+    protected class MyActivityStateParams{
+        Agent a;
+        JsonObject state;
+        String r;
+        String actID;
+        String stId;
+
+        MyActivityStateParams(Agent a, JsonObject s, String r, String stID, String actID){
+            this.a = a;
+            this.state = s;
+            this.r = r;
+            this.actID = actID;
+            this.stId = stID;
+        }
+    }
+    protected class MyReturnActivityStateData{
+        boolean success;
+        JsonObject state;
+
+        MyReturnActivityStateData(boolean s, JsonObject state){
+            this.success = s;
+            this.state = state;
         }
     }
 }
