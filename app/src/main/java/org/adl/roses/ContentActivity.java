@@ -131,17 +131,24 @@ public abstract class ContentActivity extends ActionBarActivity{
                 desc = getString(R.string.mod_symbolism_description);
                 break;
         }
+        Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc);
+        Activity act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
+                        getCurrentSlide(), name + " - Slide " + (getCurrentSlide() + 1),
+                        desc + " - Slide " + (getCurrentSlide() + 1));
         Activity slide_act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
                         getCurrentSlide() + "?attemptId=" + getCurrentAttempt(),
-                         name + " - Slide " + (getCurrentSlide() + 1),
-                         desc + " - Slide " + (getCurrentSlide() + 1));
-        Context slide_con = createContext(path, name, desc, false);
+                         "Attempt for " + name + " - Slide " + (getCurrentSlide() + 1),
+                         "Attempt for " + desc + " - Slide " + (getCurrentSlide() + 1));
+        Activity parent_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + getCurrentAttempt(),
+                "Attempt for " + name, "Attempt for " + desc);
+
+        Context slide_con = createContext(attempt_act, slide_act, parent_act, false);
 
         HashMap<String, String> verb_lang = new HashMap<String, String>();
         verb_lang.put("en-US", "read");
         Verb verb = new Verb("http://example.com/verbs/read", verb_lang);
         Agent actor = getActor();
-        MyStatementParams slide_init_params = new MyStatementParams(actor, verb, slide_act, slide_con);
+        MyStatementParams slide_init_params = new MyStatementParams(actor, verb, act, slide_con);
         WriteStatementTask slide_init_stmt_task = new WriteStatementTask();
         slide_init_stmt_task.execute(slide_init_params);
     }
@@ -149,18 +156,22 @@ public abstract class ContentActivity extends ActionBarActivity{
     protected Agent getActor(){
         return new Agent(getIntent().getExtras().getString("actorName"), getIntent().getExtras().getString("actorEmail"));
     }
-    protected Context createContext(String path, String name, String desc, boolean init){
+    protected Context createContext(Activity attempt_act, Activity slide_act, Activity parent_act, boolean init){
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
 
         ArrayList<Activity> con_act_list = new ArrayList<Activity>();
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
                 getString(R.string.context_name_desc), getString(R.string.context_name_desc)));
+        con_act_list.add(attempt_act);
 
         if (!init){
-            con_act_list.add(createActivity(getString(R.string.app_activity_iri) + path, name, desc));
+            con_act_list.add(slide_act);
+            ArrayList<Activity> parent_act_list = new ArrayList<Activity>();
+            parent_act_list.add(parent_act);
+            con_acts.setParent(parent_act_list);
         }
-        con_acts.setParent(con_act_list);
+        con_acts.setGrouping(con_act_list);
         con.setContextActivities(con_acts);
         return con;
     }

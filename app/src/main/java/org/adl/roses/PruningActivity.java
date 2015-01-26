@@ -35,10 +35,12 @@ public class PruningActivity extends ContentActivity {
             generateAttempt();
             // Get actor and send initialized statement and first slide statement
             Agent actor = getActor();
-            Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_pruning_path)
-                            +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_pruning_name),
-                    getString(R.string.mod_pruning_description));
-            Context init_con = createContext(null, null, null, true);
+            Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_pruning_path),
+                    getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description));
+            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_pruning_path)
+                    +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_pruning_name), getString(R.string.mod_pruning_description));
+
+            Context init_con = createContext(attempt_act, null, null, true);
 
             // send initialize statement
             MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);

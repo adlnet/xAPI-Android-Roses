@@ -33,10 +33,13 @@ public class RoseActivity extends ContentActivity {
             generateAttempt();
             // Get actor and send initialized statement and first slide statement
             Agent actor = getActor();
-            Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path)
-                            +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_what_name),
-                    getString(R.string.mod_what_description));
-            Context init_con = createContext(null, null, null, true);
+            Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path),
+                    getString(R.string.mod_what_name), getString(R.string.mod_what_description));
+            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path)
+                    +"?attemptId=" + getCurrentAttempt(), "Attempt for " + getString(R.string.mod_what_name),
+                    "Attempt for " + getString(R.string.mod_what_description));
+
+            Context init_con = createContext(attempt_act, null, null, true);
 
             // send initialize statement
             MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
@@ -72,7 +75,7 @@ public class RoseActivity extends ContentActivity {
             // If there is an existing activity state but it doesn't have the attempts field
             // (which is wrong), this will add it
             // Update existing attempts array with the new attempt
-            JsonPrimitive element = new JsonPrimitive(init_act.getId());
+            JsonPrimitive element = new JsonPrimitive(attempt_act.getId());
             attempts.add(element);
 
             JsonObject updated_state = new JsonObject();

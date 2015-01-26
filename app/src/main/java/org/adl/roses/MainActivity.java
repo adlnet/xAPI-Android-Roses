@@ -43,7 +43,6 @@ import gov.adlnet.xapi.model.Verbs;
 public class MainActivity extends ActionBarActivity {
     private String _actor_name;
     private String _actor_email;
-    private Boolean _bookmark_set = false;
 
     // result codes (based off of order of modules in arrays.xml)
     private final int _result_what = 0;
@@ -91,34 +90,10 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        // Try getting bookmark from statements first, if not successful try activity states,
-        // if both fail try local storage
-        getBookmarkFromStatements();
-
-        if (!_bookmark_set){
-            getBookmarkFromActivityState();
-        }
-
-        if (!_bookmark_set){
-            getBookmarkFromLocalStorage(prefs);
-        }
-
+        // Try getting bookmark from activity states
+        getBookmarkFromActivityState();
     }
 
-    private void getBookmarkFromLocalStorage(SharedPreferences prefs){
-        // Look for bookmark data in local storage
-        checkActor();
-        Agent actor = new Agent(_actor_name, _actor_email);
-
-        int moduleId = prefs.getInt("moduleId", -1);
-        int slide = prefs.getInt("slide", -1);
-        String attemptId = prefs.getString("attemptId", null);
-        String bookmarked_user = prefs.getString("bookmarkedUser", null);
-
-        if (moduleId > -1 && actor.getMbox().equals(bookmarked_user)){
-            sendResumeStatements(moduleId, attemptId, slide, actor);
-        }
-    }
     private void getBookmarkFromActivityState() {
         checkActor();
         Agent actor = new Agent(_actor_name, _actor_email);
@@ -203,38 +178,6 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
-    private void getBookmarkFromStatements(){
-        // Look for suspended statement for bookmark
-        checkActor();
-        Agent actor = new Agent(_actor_name, _actor_email);
-        MyStatementParams get_stmt_params = new MyStatementParams(actor, Verbs.suspended(), getString(R.string.app_activity_iri));
-        GetStatementsTask get_sus_stmt_task = new GetStatementsTask();
-
-        MyReturnStatementData sus_result = null;
-        try{
-            sus_result = get_sus_stmt_task.execute(get_stmt_params).get();
-        }
-        catch (Exception ex){
-            // Will get thrown in GetStatementTask
-        }
-
-        ArrayList<Statement> stmts = sus_result.stmt_result.getStatements();
-        if (stmts.size() > 0){
-            Statement stmt = stmts.get(0);
-            if (stmt.getVerb().getId().equals(Verbs.suspended().getId())){
-                try{
-                    JsonObject exts = stmt.getResult().getExtensions();
-                    int bookmark_module = exts.get(getString(R.string.app_activity_iri) + getString(R.string.result_ext_module_path)).getAsInt();
-                    int bookmark_slide = exts.get(getString(R.string.app_activity_iri) + getString(R.string.result_ext_slide_path)).getAsInt();
-                    String attempt_id = stmt.getContext().getRegistration();
-                    sendResumeStatements(bookmark_module, attempt_id, bookmark_slide, actor);
-                }
-                catch (Exception ex){
-                    Toast.makeText(getApplicationContext(), "Couldn't read result extensions: " + ex.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-    }
 
     private void sendResumeStatements(int moduleId, String attemptId, int slide, Agent actor){
         String path = "";
@@ -286,9 +229,10 @@ public class MainActivity extends ActionBarActivity {
                 module_class = SymbolismActivity.class;
                 break;
         }
-        Activity stmt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId, name, desc);
-        Context con = createContext(attemptId);
-
+        Activity stmt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc);
+        Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
+                "Attempt for " + name, "Attempt for " + desc);
+        Context con = createContext(attempt_act);
         MyStatementParams resume_params = new MyStatementParams(actor, Verbs.resumed(), stmt_act, con);
         WriteStatementTask resume_stmt_task = new WriteStatementTask();
         resume_stmt_task.execute(resume_params);
@@ -297,7 +241,6 @@ public class MainActivity extends ActionBarActivity {
         resumeActivity.putExtra("actorName", _actor_name);
         resumeActivity.putExtra("actorEmail", _actor_email);
         resumeActivity.putExtra("attemptId", attemptId);
-        _bookmark_set = true;
         startActivityForResult(resumeActivity, moduleId);
     }
     private void sendSuspendedStatements(int moduleId, String attemptId, int slide){
@@ -344,19 +287,15 @@ public class MainActivity extends ActionBarActivity {
                 desc = getString(R.string.mod_symbolism_description);
                 break;
         }
-        Activity sus_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId, name, desc);
-        Context con = createContext(attemptId);
-        Result result = new Result();
-        JsonObject res_ext = new JsonObject();
-        res_ext.addProperty(getString(R.string.app_activity_iri) + getString(R.string.result_ext_module_path), moduleId);
-        res_ext.addProperty(getString(R.string.app_activity_iri) + getString(R.string.result_ext_slide_path), slide);
-        result.setExtensions(res_ext);
-
-        MyStatementParams sus_params = new MyStatementParams(actor, Verbs.suspended(), sus_act, con, result);
+        Activity sus_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc);
+        Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
+                "Attempt for " + name, "Attempt for " + desc);
+        Context con = createContext(attempt_act);
+        MyStatementParams sus_params = new MyStatementParams(actor, Verbs.suspended(), sus_act, con);
         WriteStatementTask sus_stmt_task = new WriteStatementTask();
         sus_stmt_task.execute(sus_params);
 
-        updateActivityState(sus_act, actor, moduleId, slide, attemptId);
+        updateActivityState(attempt_act, actor, moduleId, slide);
 
         SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -426,9 +365,11 @@ public class MainActivity extends ActionBarActivity {
             startActivityForResult(mod_intent, moduleId);
         }
         else{
-            Activity mod_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + mod_attempt_id, name, desc);
             // This is called when returning from a rose module - need to keep same attemptId
-            Context con = createContext(mod_attempt_id);
+            Activity mod_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc);
+            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + mod_attempt_id,
+                    "Attempt for " + name, "Attempt for " + desc);
+            Context con = createContext(attempt_act);
             // returned result from launched activity, send terminated
             MyStatementParams terminate_params = new MyStatementParams(actor, Verbs.terminated(), mod_act, con);
             WriteStatementTask terminate_stmt_task = new WriteStatementTask();
@@ -445,7 +386,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private void updateActivityState(Activity sus_act, Agent actor, int moduleId, int slide, String attemptId){
+    private void updateActivityState(Activity sus_act, Agent actor, int moduleId, int slide){
         // Write attempt state
         JsonObject attempt_state = new JsonObject();
         attempt_state.addProperty("location", String.format("%s %s", moduleId, slide));
@@ -457,16 +398,16 @@ public class MainActivity extends ActionBarActivity {
         sus_as_task.execute(as_sus_params);
     }
 
-    private Context createContext(String registration){
+    private Context createContext(Activity attempt_act){
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
 
         ArrayList<Activity> con_act_list = new ArrayList<Activity>();
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
                 getString(R.string.context_name_desc), getString(R.string.context_name_desc)));
+        con_act_list.add(attempt_act);
 
-        con_acts.setParent(con_act_list);
-        con.setRegistration(registration);
+        con_acts.setGrouping(con_act_list);
         con.setContextActivities(con_acts);
         return con;
     }
