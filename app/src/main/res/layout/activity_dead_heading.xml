@@ -12,7 +12,7 @@
         android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/dhSuspend"
+        android:id="@+id/suspend"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/suspend_button"
@@ -20,20 +20,20 @@
         />
 
     <Button
-        android:id="@+id/dhPrev"
+        android:id="@+id/prev"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/previous_button"
-        android:layout_below="@id/dhSuspend"
+        android:layout_below="@id/suspend"
         android:layout_alignParentLeft="true"
         />
 
     <Button
-        android:id="@+id/dhNext"
+        android:id="@+id/next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/next_button"
-        android:layout_below="@id/dhSuspend"
+        android:layout_below="@id/suspend"
         android:layout_alignParentRight="true"
         />
 

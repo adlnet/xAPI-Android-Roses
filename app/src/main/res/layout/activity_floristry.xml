@@ -1,70 +1,3 @@
-<!--<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_margin="16dp"-->
-    <!--android:layout_height="wrap_content">-->
-
-    <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--xmlns:tools="http://schemas.android.com/tools"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:orientation="vertical"-->
-        <!--tools:context="com.example.lou.xapidemo.FloristryActivity">-->
-
-            <!--<ImageView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:src="@drawable/ike"-->
-                <!--android:layout_marginBottom="10dp"/>-->
-
-            <!--<TextView android:id="@+id/floristryText1"-->
-                <!--android:text=""-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_alignParentTop="true"-->
-                <!--android:layout_alignParentLeft="true"-->
-                <!--android:layout_marginBottom="50dp"/>-->
-
-            <!--<ImageView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:src="@drawable/ecg"-->
-                <!--android:layout_marginBottom="10dp"/>-->
-
-            <!--<TextView android:id="@+id/floristryText2"-->
-                <!--android:text=""-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_below="@id/floristryText1"-->
-                <!--android:layout_marginBottom="50dp"/>-->
-
-            <!--<ImageView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:src="@drawable/hs"-->
-                <!--android:layout_marginBottom="10dp"/>-->
-
-            <!--<TextView android:id="@+id/floristryText3"-->
-                <!--android:text=""-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_below="@id/floristryText2"-->
-                <!--android:layout_marginBottom="20dp"/>-->
-
-            <!--<RelativeLayout-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent">-->
-                <!--<ImageView-->
-                    <!--android:id="@+id/img1"-->
-                    <!--android:src="@drawable/corner"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_alignParentBottom="true"-->
-                    <!--android:layout_alignParentRight="true"-->
-                    <!--/>-->
-            <!--</RelativeLayout>-->
-    <!--</LinearLayout>-->
-<!--</ScrollView>-->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -79,7 +12,7 @@
         android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/florSuspend"
+        android:id="@+id/suspend"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/suspend_button"
@@ -87,20 +20,20 @@
         />
 
     <Button
-        android:id="@+id/florPrev"
+        android:id="@+id/prev"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/previous_button"
-        android:layout_below="@id/florSuspend"
+        android:layout_below="@id/suspend"
         android:layout_alignParentLeft="true"
         />
 
     <Button
-        android:id="@+id/florNext"
+        android:id="@+id/next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/next_button"
-        android:layout_below="@id/florSuspend"
+        android:layout_below="@id/suspend"
         android:layout_alignParentRight="true"
         />
 

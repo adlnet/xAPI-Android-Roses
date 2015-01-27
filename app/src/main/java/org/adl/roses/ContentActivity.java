@@ -4,13 +4,18 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +30,7 @@ import gov.adlnet.xapi.model.Context;
 import gov.adlnet.xapi.model.ContextActivities;
 import gov.adlnet.xapi.model.Statement;
 import gov.adlnet.xapi.model.Verb;
+import gov.adlnet.xapi.model.Verbs;
 
 /**
  * Created by lou on 1/12/15.
@@ -33,6 +39,157 @@ public abstract class ContentActivity extends ActionBarActivity{
     private int android_id;
     private int current_slide;
     private String attempt;
+
+    protected void mOnCreate(Bundle savedInstanceState){
+        // Set the module ID and current slide
+        setAndroidId(getIntent().getExtras().getInt("requestCode"));
+        setCurrentSlide(getIntent().getExtras().getInt("slideId"));
+
+        String path = "";
+        String name = "";
+        String desc = "";
+        switch (getAndroidId()){
+            case 0:
+                path = getString(R.string.mod_what_path);
+                name = getString(R.string.mod_what_name);
+                desc = getString(R.string.mod_what_description);
+                break;
+            case 1:
+                path = getString(R.string.mod_pruning_path);
+                name = getString(R.string.mod_pruning_name);
+                desc = getString(R.string.mod_pruning_description);
+                break;
+            case 2:
+                path = getString(R.string.mod_deadheading_path);
+                name = getString(R.string.mod_deadheading_name);
+                desc = getString(R.string.mod_deadheading_description);
+                break;
+            case 3:
+                path = getString(R.string.mod_shearing_path);
+                name = getString(R.string.mod_shearing_name);
+                desc = getString(R.string.mod_shearing_description);
+                break;
+            case 4:
+                path = getString(R.string.mod_hybrids_path);
+                name = getString(R.string.mod_hybrids_name);
+                desc = getString(R.string.mod_hybrids_description);
+                break;
+            case 5:
+                path = getString(R.string.mod_styles_path);
+                name = getString(R.string.mod_styles_name);
+                desc = getString(R.string.mod_styles_description);
+                break;
+            case 6:
+                path = getString(R.string.mod_symbolism_path);
+                name = getString(R.string.mod_symbolism_name);
+                desc = getString(R.string.mod_symbolism_description);
+                break;
+        }
+
+        // Set or generate the attempt ID
+        String attemptId = getIntent().getExtras().getString("attemptId", null);
+        if (attemptId == null){
+            generateAttempt();
+            // Get actor and send initialized statement and first slide statement
+            Agent actor = getActor();
+            Activity init_act = createActivity(getString(R.string.app_activity_iri) + path,
+                    name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
+            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path
+                            +"?attemptId=" + getCurrentAttempt(), "Attempt for " + name,
+                    "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
+
+            Context init_con = createContext(attempt_act, null, null, true);
+
+            // send initialize statement
+            MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
+            WriteStatementTask init_stmt_task = new WriteStatementTask();
+            init_stmt_task.execute(init_params);
+
+            // Update activity state
+            // Get existing activity state by using SCORM activity state IRI as stateID
+            // and app IRI as activityId
+            MyActivityStateParams init_as_params = new MyActivityStateParams(actor, null, null, getString(R.string.scorm_profile_activity_state_id),
+                    getString(R.string.app_activity_iri));
+            GetActivityStateTask get_init_as_task = new GetActivityStateTask();
+            MyReturnActivityStateData init_as_result = null;
+            try{
+                init_as_result = get_init_as_task.execute(init_as_params).get();
+            }
+            catch (Exception ex){
+                // Will get thrown in GetActivityStateTask
+            }
+
+            JsonObject act_state = init_as_result.state;
+            JsonArray attempts = new JsonArray();
+            // State could not exist first time, have to make it
+            if (act_state != null){
+                try{
+                    // Get the attempts element from the state
+                    attempts = act_state.get("Attempts").getAsJsonArray();
+                }
+                catch (Exception ex){
+                    Toast.makeText(getApplicationContext(), "Error with updating activity state: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+            // If there is an existing activity state but it doesn't have the attempts field
+            // (which is wrong), this will add it
+            // Update existing attempts array with the new attempt
+            JsonPrimitive element = new JsonPrimitive(attempt_act.getId());
+            attempts.add(element);
+
+            JsonObject updated_state = new JsonObject();
+            updated_state.add("Attempts", attempts);
+
+            // Write attempt state with updated attempts array
+            // Write to attempt state that has attemptID as registration, SCORM activity state IRI
+            // as stateID and app IRI as activityID
+            MyActivityStateParams write_updated_as_params = new MyActivityStateParams(actor, updated_state, null,
+                    getString(R.string.scorm_profile_activity_state_id), getString(R.string.app_activity_iri));
+            WriteActivityStateTask write_updated_as_task = new WriteActivityStateTask();
+            write_updated_as_task.execute(write_updated_as_params);
+        }
+        else{
+            setCurrentAttempt(attemptId);
+        }
+
+        // Set onClick listeners
+        Button button = (Button) findViewById(R.id.suspend);
+        button.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                returnResult(true);
+            }
+        });
+
+        Button pbutton = (Button) findViewById(R.id.prev);
+        pbutton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                previousSlide();
+            }
+        });
+
+        Button nbutton = (Button) findViewById(R.id.next);
+        nbutton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                nextSlide();
+            }
+        });
+
+        // Check that the activity is u sing he layout version with
+        // the fragment_container FameLayout
+        if (findViewById(R.id.textFrag) != null){
+            // However, if we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null){
+                return;
+            }
+
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            SlideFragment frag = new SlideFragment();
+            fragmentTransaction.add(R.id.textFrag, frag).commit();
+        }
+    }
 
     protected int getAndroidId(){
         return this.android_id;
