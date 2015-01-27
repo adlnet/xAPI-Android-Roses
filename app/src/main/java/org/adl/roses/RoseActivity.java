@@ -34,10 +34,10 @@ public class RoseActivity extends ContentActivity {
             // Get actor and send initialized statement and first slide statement
             Agent actor = getActor();
             Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path),
-                    getString(R.string.mod_what_name), getString(R.string.mod_what_description));
+                    getString(R.string.mod_what_name), getString(R.string.mod_what_description), getString(R.string.scorm_profile_activity_type_lesson_id));
             Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_what_path)
                     +"?attemptId=" + getCurrentAttempt(), "Attempt for " + getString(R.string.mod_what_name),
-                    "Attempt for " + getString(R.string.mod_what_description));
+                    "Attempt for " + getString(R.string.mod_what_description), getString(R.string.scorm_profile_activity_type_attempt_id));
 
             Context init_con = createContext(attempt_act, null, null, true);
 

@@ -131,16 +131,17 @@ public abstract class ContentActivity extends ActionBarActivity{
                 desc = getString(R.string.mod_symbolism_description);
                 break;
         }
-        Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc);
+        Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc,
+                getString(R.string.scorm_profile_activity_type_lesson_id));
         Activity act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
                         getCurrentSlide(), name + " - Slide " + (getCurrentSlide() + 1),
-                        desc + " - Slide " + (getCurrentSlide() + 1));
+                        desc + " - Slide " + (getCurrentSlide() + 1), getString(R.string.scorm_profile_activity_type_lesson_id));
         Activity slide_act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
                         getCurrentSlide() + "?attemptId=" + getCurrentAttempt(),
                          "Attempt for " + name + " - Slide " + (getCurrentSlide() + 1),
-                         "Attempt for " + desc + " - Slide " + (getCurrentSlide() + 1));
+                         "Attempt for " + desc + " - Slide " + (getCurrentSlide() + 1), getString(R.string.scorm_profile_activity_type_attempt_id));
         Activity parent_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + getCurrentAttempt(),
-                "Attempt for " + name, "Attempt for " + desc);
+                "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
 
         Context slide_con = createContext(attempt_act, slide_act, parent_act, false);
 
@@ -162,7 +163,8 @@ public abstract class ContentActivity extends ActionBarActivity{
 
         ArrayList<Activity> con_act_list = new ArrayList<Activity>();
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
-                getString(R.string.context_name_desc), getString(R.string.context_name_desc)));
+                getString(R.string.context_name_desc), getString(R.string.context_name_desc),
+                getString(R.string.scorm_profile_activity_type_course_id)));
         con_act_list.add(attempt_act);
 
         if (!init){
@@ -171,17 +173,21 @@ public abstract class ContentActivity extends ActionBarActivity{
             parent_act_list.add(parent_act);
             con_acts.setParent(parent_act_list);
         }
+        ArrayList<Activity> cat_act_list = new ArrayList<Activity>();
+        cat_act_list.add(new Activity(getString(R.string.scorm_profile_activity_category_id)));
+        con_acts.setCategory(cat_act_list);
         con_acts.setGrouping(con_act_list);
         con.setContextActivities(con_acts);
         return con;
     }
-    protected Activity createActivity(String act_id, String name, String desc){
+    protected Activity createActivity(String act_id, String name, String desc, String type_id){
         Activity act = new Activity(act_id);
         ActivityDefinition act_def = new ActivityDefinition();
         act_def.setName(new HashMap<String, String>());
         act_def.getName().put("en-US", name);
         act_def.setDescription(new HashMap<String, String>());
         act_def.getDescription().put("en-US", desc);
+        act_def.setType(type_id);
         act.setDefinition(act_def);
         return act;
     }

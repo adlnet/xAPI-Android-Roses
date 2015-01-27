@@ -35,9 +35,10 @@ public class HybridsActivity extends ContentActivity {
             // Get actor and send initialized statement and first slide statement
             Agent actor = getActor();
             Activity init_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_hybrids_path),
-                    getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description));
+                    getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description), getString(R.string.scorm_profile_activity_type_lesson_id));
             Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + getString(R.string.mod_hybrids_path)
-                    +"?attemptId=" + getCurrentAttempt(), getString(R.string.mod_hybrids_name), getString(R.string.mod_hybrids_description));
+                    +"?attemptId=" + getCurrentAttempt(), "Attempt for " + getString(R.string.mod_hybrids_name),
+                    "Attempt for " + getString(R.string.mod_hybrids_description), getString(R.string.scorm_profile_activity_type_attempt_id));
 
             Context init_con = createContext(attempt_act, null, null, true);
 
@@ -75,7 +76,7 @@ public class HybridsActivity extends ContentActivity {
             // If there is an existing activity state but it doesn't have the attempts field
             // (which is wrong), this will add it
             // Update existing attempts array with the new attempt
-            JsonPrimitive element = new JsonPrimitive(init_act.getId());
+            JsonPrimitive element = new JsonPrimitive(attempt_act.getId());
             attempts.add(element);
 
             JsonObject updated_state = new JsonObject();

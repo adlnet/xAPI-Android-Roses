@@ -55,3 +55,5 @@ gradle/
 *.properties
 gradlew
 gradlew.bat
+
+*.pro

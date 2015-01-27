@@ -229,9 +229,9 @@ public class MainActivity extends ActionBarActivity {
                 module_class = SymbolismActivity.class;
                 break;
         }
-        Activity stmt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc);
+        Activity stmt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
         Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
-                "Attempt for " + name, "Attempt for " + desc);
+                "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
         Context con = createContext(attempt_act);
         MyStatementParams resume_params = new MyStatementParams(actor, Verbs.resumed(), stmt_act, con);
         WriteStatementTask resume_stmt_task = new WriteStatementTask();
@@ -287,9 +287,9 @@ public class MainActivity extends ActionBarActivity {
                 desc = getString(R.string.mod_symbolism_description);
                 break;
         }
-        Activity sus_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc);
+        Activity sus_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
         Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
-                "Attempt for " + name, "Attempt for " + desc);
+                "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
         Context con = createContext(attempt_act);
         MyStatementParams sus_params = new MyStatementParams(actor, Verbs.suspended(), sus_act, con);
         WriteStatementTask sus_stmt_task = new WriteStatementTask();
@@ -366,9 +366,9 @@ public class MainActivity extends ActionBarActivity {
         }
         else{
             // This is called when returning from a rose module - need to keep same attemptId
-            Activity mod_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc);
+            Activity mod_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
             Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + mod_attempt_id,
-                    "Attempt for " + name, "Attempt for " + desc);
+                    "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
             Context con = createContext(attempt_act);
             // returned result from launched activity, send terminated
             MyStatementParams terminate_params = new MyStatementParams(actor, Verbs.terminated(), mod_act, con);
@@ -404,20 +404,25 @@ public class MainActivity extends ActionBarActivity {
 
         ArrayList<Activity> con_act_list = new ArrayList<Activity>();
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
-                getString(R.string.context_name_desc), getString(R.string.context_name_desc)));
+                getString(R.string.context_name_desc), getString(R.string.context_name_desc),
+                getString(R.string.scorm_profile_activity_type_course_id)));
         con_act_list.add(attempt_act);
 
         con_acts.setGrouping(con_act_list);
+        ArrayList<Activity> cat_act_list = new ArrayList<Activity>();
+        cat_act_list.add(new Activity(getString(R.string.scorm_profile_activity_category_id)));
+        con_acts.setCategory(cat_act_list);
         con.setContextActivities(con_acts);
         return con;
     }
-    private Activity createActivity(String act_id, String name, String desc){
+    private Activity createActivity(String act_id, String name, String desc, String type_id){
         Activity act = new Activity(act_id);
         ActivityDefinition act_def = new ActivityDefinition();
         act_def.setName(new HashMap<String, String>());
         act_def.getName().put("en-US", name);
         act_def.setDescription(new HashMap<String, String>());
         act_def.getDescription().put("en-US", desc);
+        act_def.setType(type_id);
         act.setDefinition(act_def);
         return act;
     }
@@ -512,6 +517,8 @@ public class MainActivity extends ActionBarActivity {
                         editor.putString(getString(R.string.preferences_name_key), _actor_name);
                         editor.putString(getString(R.string.preferences_email_key), _actor_email);
                         editor.commit();
+                        // Try getting bookmark from activity states
+                        getBookmarkFromActivityState();
                     }
                 });
 
@@ -635,11 +642,11 @@ public class MainActivity extends ActionBarActivity {
             return new MyReturnActivityStateData(success, state);
         }
 
-//        protected void onPostExecute(MyReturnActivityStateData asd){
-//            if (!asd.success){
-//                Toast.makeText(getApplicationContext(), "No activity state returned (could not exist yet)", Toast.LENGTH_LONG).show();
-//            }
-//        }
+        protected void onPostExecute(MyReturnActivityStateData asd){
+            if (!asd.success){
+                Toast.makeText(getApplicationContext(), "No activity state returned (could not exist yet)", Toast.LENGTH_LONG).show();
+            }
+        }
     }
     private class WriteActivityStateTask extends AsyncTask<MyActivityStateParams, Void, Pair<Boolean, String>>{
         protected Pair<Boolean, String> doInBackground(MyActivityStateParams... params){
