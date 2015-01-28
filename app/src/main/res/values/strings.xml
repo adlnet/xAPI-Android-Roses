@@ -21,6 +21,7 @@
     <string name="dialog_title">Continue from last bookmark?</string>
     <string name="default_name">Anonymous</string>
     <string name="default_email">anonymous@anon.com</string>
+    <string name="read_verb">http://example.com/verbs/read</string>
 
     <string name="suspend_button">Suspend</string>
     <string name="previous_button">Prev</string>
@@ -37,12 +38,13 @@
     <string name="title_activity_symbolism">SymbolismActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
-    <string name="retrieve_attempts_error">Couldn't retrieve attempts from state: </string>
-    <string name="retrieve_as_attempt_error">Couldn't read activity state attempt data: </string>
+    <string name="retrieve_attempts_error">Could not retrieve attempts from state: </string>
+    <string name="retrieve_as_attempt_error">Could not read activity state attempt data: </string>
     <string name="statement_write_error">Write Statement Error: </string>
     <string name="statement_get_error">Get Statement Error: </string>
     <string name="get_as_error">No activity state returned (could not exist yet)</string>
     <string name="write_as_error">Write State Error: </string>
+    <string name="updating_as_error">Error with updating activity state: </string>
 
     <string name="intent_request_code">requestCode</string>
     <string name="intent_slide">slideId</string>

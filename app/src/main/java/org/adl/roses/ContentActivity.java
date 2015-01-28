@@ -36,62 +36,28 @@ import gov.adlnet.xapi.model.Verbs;
  * Created by lou on 1/12/15.
  */
 public abstract class ContentActivity extends ActionBarActivity{
-    private int android_id;
-    private int current_slide;
-    private String attempt;
+    private int _android_id;
+    private int _current_slide;
+    private Agent _actor;
+    private String _attempt;
 
     protected void mOnCreate(Bundle savedInstanceState){
         // Set the module ID and current slide
-        setAndroidId(getIntent().getExtras().getInt("requestCode"));
-        setCurrentSlide(getIntent().getExtras().getInt("slideId"));
+        setAndroidId(getIntent().getExtras().getInt(getString(R.string.intent_request_code)));
+        setCurrentSlide(getIntent().getExtras().getInt(getString(R.string.intent_slide)));
+        setActor();
 
-        String path = "";
-        String name = "";
-        String desc = "";
-        switch (getAndroidId()){
-            case 0:
-                path = getString(R.string.mod_what_path);
-                name = getString(R.string.mod_what_name);
-                desc = getString(R.string.mod_what_description);
-                break;
-            case 1:
-                path = getString(R.string.mod_pruning_path);
-                name = getString(R.string.mod_pruning_name);
-                desc = getString(R.string.mod_pruning_description);
-                break;
-            case 2:
-                path = getString(R.string.mod_deadheading_path);
-                name = getString(R.string.mod_deadheading_name);
-                desc = getString(R.string.mod_deadheading_description);
-                break;
-            case 3:
-                path = getString(R.string.mod_shearing_path);
-                name = getString(R.string.mod_shearing_name);
-                desc = getString(R.string.mod_shearing_description);
-                break;
-            case 4:
-                path = getString(R.string.mod_hybrids_path);
-                name = getString(R.string.mod_hybrids_name);
-                desc = getString(R.string.mod_hybrids_description);
-                break;
-            case 5:
-                path = getString(R.string.mod_styles_path);
-                name = getString(R.string.mod_styles_name);
-                desc = getString(R.string.mod_styles_description);
-                break;
-            case 6:
-                path = getString(R.string.mod_symbolism_path);
-                name = getString(R.string.mod_symbolism_name);
-                desc = getString(R.string.mod_symbolism_description);
-                break;
-        }
+        ModuleData md = setModuleData(getAndroidId(), false);
+        String path = md.path;
+        String name = md.name;
+        String desc = md.desc;
 
         // Set or generate the attempt ID
-        String attemptId = getIntent().getExtras().getString("attemptId", null);
+        String attemptId = getIntent().getExtras().getString(getString(R.string.intent_attempt), null);
         if (attemptId == null){
             generateAttempt();
             // Get actor and send initialized statement and first slide statement
-            Agent actor = getActor();
+
             Activity init_act = createActivity(getString(R.string.app_activity_iri) + path,
                     name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
 
@@ -101,15 +67,15 @@ public abstract class ContentActivity extends ActionBarActivity{
 
             Context init_con = createContext(attempt_act, null, null, true);
             // send initialize statement
-            MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
+            MyStatementParams init_params = new MyStatementParams(getActor(), Verbs.initialized(), init_act, init_con);
             WriteStatementTask init_stmt_task = new WriteStatementTask();
             init_stmt_task.execute(init_params);
 
             // Update activity state
             // Get existing activity state by using SCORM activity state IRI as stateID
             // and app IRI as activityId
-            MyActivityStateParams init_as_params = new MyActivityStateParams(actor, null, null, getString(R.string.scorm_profile_activity_state_id),
-                    getString(R.string.app_activity_iri));
+            MyActivityStateParams init_as_params = new MyActivityStateParams(getActor(), null, null,
+                    getString(R.string.scorm_profile_activity_state_id), getString(R.string.app_activity_iri));
             GetActivityStateTask get_init_as_task = new GetActivityStateTask();
             MyReturnActivityStateData init_as_result = null;
             try{
@@ -128,7 +94,8 @@ public abstract class ContentActivity extends ActionBarActivity{
                     attempts = act_state.get("Attempts").getAsJsonArray();
                 }
                 catch (Exception ex){
-                    Toast.makeText(getApplicationContext(), "Error with updating activity state: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.updating_as_error) + ex.getMessage(),
+                            Toast.LENGTH_LONG).show();
                 }
             }
             // If there is an existing activity state but it doesn't have the attempts field
@@ -143,7 +110,7 @@ public abstract class ContentActivity extends ActionBarActivity{
             // Write attempt state with updated attempts array
             // Write to attempt state that has attemptID as registration, SCORM activity state IRI
             // as stateID and app IRI as activityID
-            MyActivityStateParams write_updated_as_params = new MyActivityStateParams(actor, updated_state, null,
+            MyActivityStateParams write_updated_as_params = new MyActivityStateParams(getActor(), updated_state, null,
                     getString(R.string.scorm_profile_activity_state_id), getString(R.string.app_activity_iri));
             WriteActivityStateTask write_updated_as_task = new WriteActivityStateTask();
             write_updated_as_task.execute(write_updated_as_params);
@@ -192,20 +159,25 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
 
     protected int getAndroidId(){
-        return this.android_id;
+        return this._android_id;
     }
     protected void setAndroidId(int a_id){
-        this.android_id = a_id;
+        this._android_id = a_id;
     }
     protected int getCurrentSlide(){
-        return this.current_slide;
+        return this._current_slide;
     }
     protected void setCurrentSlide(int s_id){
-        this.current_slide = s_id;
+        this._current_slide = s_id;
     }
-    protected String getCurrentAttempt(){return this.attempt;}
-    protected void setCurrentAttempt(String att){this.attempt = att;}
-    protected void generateAttempt(){this.attempt = UUID.randomUUID().toString();}
+    protected String getCurrentAttempt(){return this._attempt;}
+    protected void setCurrentAttempt(String att){this._attempt = att;}
+    protected void generateAttempt(){this._attempt = UUID.randomUUID().toString();}
+    protected void setActor(){
+        this._actor =  new Agent(getIntent().getExtras().getString(getString(R.string.intent_actor_name)),
+                getIntent().getExtras().getString(getString(R.string.intent_actor_email)));
+    }
+    protected Agent getActor(){return this._actor;}
 
     protected void previousSlide(){
         // If first opening the module - don't send extra read statement for current slide
@@ -247,47 +219,11 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
 
     protected void sendSlideChangeStatement(){
-        String path = "";
-        String name = "";
-        String desc = "";
+        ModuleData md = setModuleData(getAndroidId(), false);
+        String path = md.path;
+        String name = md.name;
+        String desc = md.desc;
 
-        switch(getAndroidId()){
-            case 0:
-                path = getString(R.string.mod_what_path);
-                name = getString(R.string.mod_what_name);
-                desc = getString(R.string.mod_what_description);
-                break;
-            case 1:
-                path = getString(R.string.mod_pruning_path);
-                name = getString(R.string.mod_pruning_name);
-                desc = getString(R.string.mod_pruning_description);
-                break;
-            case 2:
-                path = getString(R.string.mod_deadheading_path);
-                name = getString(R.string.mod_deadheading_name);
-                desc = getString(R.string.mod_deadheading_description);
-                break;
-            case 3:
-                path = getString(R.string.mod_shearing_path);
-                name = getString(R.string.mod_shearing_name);
-                desc = getString(R.string.mod_shearing_description);
-                break;
-            case 4:
-                path = getString(R.string.mod_hybrids_path);
-                name = getString(R.string.mod_hybrids_name);
-                desc = getString(R.string.mod_hybrids_description);
-                break;
-            case 5:
-                path = getString(R.string.mod_styles_path);
-                name = getString(R.string.mod_styles_name);
-                desc = getString(R.string.mod_styles_description);
-                break;
-            case 6:
-                path = getString(R.string.mod_symbolism_path);
-                name = getString(R.string.mod_symbolism_name);
-                desc = getString(R.string.mod_symbolism_description);
-                break;
-        }
         Activity lesson_attempt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc,
                 getString(R.string.scorm_profile_activity_type_lesson_id));
 
@@ -309,16 +245,12 @@ public abstract class ContentActivity extends ActionBarActivity{
         Context slide_con = createContext(lesson_attempt_act, slide_attempt_act, parent_attempt_act, false);
         HashMap<String, String> verb_lang = new HashMap<String, String>();
         verb_lang.put("en-US", "read");
-        Verb verb = new Verb("http://example.com/verbs/read", verb_lang);
-        Agent actor = getActor();
-        MyStatementParams slide_init_params = new MyStatementParams(actor, verb, object_act, slide_con);
+        Verb verb = new Verb(getString(R.string.read_verb), verb_lang);
+        MyStatementParams slide_init_params = new MyStatementParams(getActor(), verb, object_act, slide_con);
         WriteStatementTask slide_init_stmt_task = new WriteStatementTask();
         slide_init_stmt_task.execute(slide_init_params);
     }
 
-    protected Agent getActor(){
-        return new Agent(getIntent().getExtras().getString("actorName"), getIntent().getExtras().getString("actorEmail"));
-    }
     protected Context createContext(Activity lesson_attempt_act, Activity slide_attempt_act, Activity parent_attempt_act, boolean init){
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
@@ -326,7 +258,7 @@ public abstract class ContentActivity extends ActionBarActivity{
         ArrayList<Activity> con_act_list = new ArrayList<Activity>();
         // Add application activity
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
-                getString(R.string.context_name_desc), getString(R.string.context_name_desc),
+                getString(R.string.app_activity_name), getString(R.string.app_activity_description),
                 getString(R.string.scorm_profile_activity_type_course_id)));
         con_act_list.add(lesson_attempt_act);
 
@@ -354,6 +286,18 @@ public abstract class ContentActivity extends ActionBarActivity{
         act_def.setType(type_id);
         act.setDefinition(act_def);
         return act;
+    }
+
+    private ModuleData setModuleData(int moduleId, Boolean mc){
+        ModuleData returnData = new ModuleData();
+        returnData.setPath(getResources().getStringArray(R.array.modules_path)[moduleId]);
+        returnData.setName(getResources().getStringArray(R.array.modules_name)[moduleId]);
+        returnData.setDesc(getResources().getStringArray(R.array.modules_desc)[moduleId]);
+
+        if (mc){
+            returnData.setModule_class(moduleId);
+        }
+        return returnData;
     }
 
     @Override
@@ -385,8 +329,8 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
     protected void returnResult(boolean suspended){
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("attemptId", getCurrentAttempt());
-        returnIntent.putExtra("slideId", getCurrentSlide());
+        returnIntent.putExtra(getString(R.string.intent_attempt), getCurrentAttempt());
+        returnIntent.putExtra(getString(R.string.intent_slide), getCurrentSlide());
         if (suspended){
             setResult(RESULT_CANCELED, returnIntent);
         }
@@ -420,8 +364,8 @@ public abstract class ContentActivity extends ActionBarActivity{
 
         protected void onPostExecute(Pair<Boolean, String> p){
             if (!p.first){
-                String msg = "Write Statement Error: ";
-                Toast.makeText(getApplicationContext(), msg + p.second, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.statement_write_error) + p.second,
+                        Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -430,12 +374,18 @@ public abstract class ContentActivity extends ActionBarActivity{
         Verb v;
         Activity a;
         Context c;
+        String aID;
 
         MyStatementParams(Agent ag, Verb v, Activity a, Context c){
             this.ag = ag;
             this.v = v;
             this.a = a;
             this.c = c;
+        }
+        MyStatementParams(Agent ag, Verb v, String a){
+            this.ag = ag;
+            this.v = v;
+            this.aID = a;
         }
     }
     protected class GetActivityStateTask extends AsyncTask<MyActivityStateParams, Void, MyReturnActivityStateData>{
@@ -457,7 +407,7 @@ public abstract class ContentActivity extends ActionBarActivity{
 
         protected void onPostExecute(MyReturnActivityStateData asd){
             if (!asd.success){
-                Toast.makeText(getApplicationContext(), "No activity state returned (could not exist yet)", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.get_as_error), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -481,8 +431,8 @@ public abstract class ContentActivity extends ActionBarActivity{
 
         protected void onPostExecute(Pair<Boolean, String> p){
             if (!p.first){
-                String msg = "Write State Error: ";
-                Toast.makeText(getApplicationContext(), msg + p.second, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.write_as_error) + p.second,
+                        Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -508,6 +458,48 @@ public abstract class ContentActivity extends ActionBarActivity{
         MyReturnActivityStateData(boolean s, JsonObject state){
             this.success = s;
             this.state = state;
+        }
+    }
+    private class ModuleData{
+        String path;
+        String name;
+        String desc;
+        Class module_class;
+
+        ModuleData(){}
+        public void setPath(String path) {
+            this.path = path;
+        }
+        public void setName(String name) {
+            this.name = name;
+        }
+        public void setDesc(String desc) {
+            this.desc = desc;
+        }
+        public void setModule_class(int module_class) {
+            switch(module_class){
+                case 0:
+                    this.module_class = RoseActivity.class;
+                    break;
+                case 1:
+                    this.module_class = PruningActivity.class;
+                    break;
+                case 2:
+                    this.module_class = DeadHeadingActivity.class;
+                    break;
+                case 3:
+                    this.module_class = ShearingActivity.class;
+                    break;
+                case 4:
+                    this.module_class = HybridsActivity.class;
+                    break;
+                case 5:
+                    this.module_class = FloristryActivity.class;
+                    break;
+                case 6:
+                    this.module_class = SymbolismActivity.class;
+                    break;
+            }
         }
     }
 }

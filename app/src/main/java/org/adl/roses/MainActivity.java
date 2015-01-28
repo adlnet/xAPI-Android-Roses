@@ -34,7 +34,6 @@ import gov.adlnet.xapi.model.ActivityDefinition;
 import gov.adlnet.xapi.model.Agent;
 import gov.adlnet.xapi.model.Context;
 import gov.adlnet.xapi.model.ContextActivities;
-import gov.adlnet.xapi.model.Result;
 import gov.adlnet.xapi.model.Statement;
 import gov.adlnet.xapi.model.StatementResult;
 import gov.adlnet.xapi.model.Verb;
@@ -296,7 +295,7 @@ public class MainActivity extends ActionBarActivity {
 
         ArrayList<Activity> con_act_list = new ArrayList<Activity>();
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
-                getString(R.string.context_name_desc), getString(R.string.context_name_desc),
+                getString(R.string.app_activity_name), getString(R.string.app_activity_description),
                 getString(R.string.scorm_profile_activity_type_course_id)));
         con_act_list.add(attempt_act);
 
@@ -412,14 +411,13 @@ public class MainActivity extends ActionBarActivity {
         dialog.show();
     }
 
-    private class WriteStatementTask extends AsyncTask<MyStatementParams, Void, Pair<Boolean, String>>{
+    protected class WriteStatementTask extends AsyncTask<MyStatementParams, Void, Pair<Boolean, String>>{
         protected Pair<Boolean, String> doInBackground(MyStatementParams... params){
             Statement stmt = new Statement();
             stmt.setActor(params[0].ag);
             stmt.setVerb(params[0].v);
             stmt.setObject(params[0].a);
             stmt.setContext(params[0].c);
-            stmt.setResult(params[0].r);
 
             boolean success = true;
             String content;
@@ -442,7 +440,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
-    private class GetStatementsTask extends AsyncTask<MyStatementParams, Void, MyReturnStatementData> {
+    protected class GetStatementsTask extends AsyncTask<MyStatementParams, Void, MyReturnStatementData> {
         protected MyReturnStatementData doInBackground(MyStatementParams... params) {
             // Try getting statement first and using the object ID of the suspended statement
             Agent actor = params[0].ag;
@@ -474,13 +472,13 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
-    private class MyStatementParams {
+    protected class MyStatementParams {
         Agent ag;
         Verb v;
         Activity a;
         Context c;
         String aID;
-        Result r;
+
         MyStatementParams(Agent ag, Verb v, Activity a, Context c){
             this.ag = ag;
             this.v = v;
@@ -493,17 +491,18 @@ public class MainActivity extends ActionBarActivity {
             this.aID = a;
         }
     }
-    private class MyReturnStatementData{
+    protected class MyReturnStatementData{
         boolean success;
         String result;
         StatementResult stmt_result;
+
         MyReturnStatementData(boolean s, String r, StatementResult sr){
             this.success = s;
             this.result = r;
             this.stmt_result = sr;
         }
     }
-    private class GetActivityStateTask extends AsyncTask<MyActivityStateParams, Void, MyReturnActivityStateData>{
+    protected class GetActivityStateTask extends AsyncTask<MyActivityStateParams, Void, MyReturnActivityStateData>{
         protected MyReturnActivityStateData doInBackground(MyActivityStateParams... params){
             JsonObject state;
             boolean success = true;
@@ -526,7 +525,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
-    private class WriteActivityStateTask extends AsyncTask<MyActivityStateParams, Void, Pair<Boolean, String>>{
+    protected class WriteActivityStateTask extends AsyncTask<MyActivityStateParams, Void, Pair<Boolean, String>>{
         protected Pair<Boolean, String> doInBackground(MyActivityStateParams... params){
             boolean success;
             String content;
@@ -551,7 +550,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
-    private class MyActivityStateParams{
+    protected class MyActivityStateParams{
         Agent a;
         JsonObject state;
         String r;
@@ -566,7 +565,7 @@ public class MainActivity extends ActionBarActivity {
             this.stId = stID;
         }
     }
-    private class MyReturnActivityStateData{
+    protected class MyReturnActivityStateData{
         boolean success;
         JsonObject state;
 
@@ -575,7 +574,7 @@ public class MainActivity extends ActionBarActivity {
             this.state = state;
         }
     }
-    private class ModuleData{
+    protected class ModuleData{
         String path;
         String name;
         String desc;
