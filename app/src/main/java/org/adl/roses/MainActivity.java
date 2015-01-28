@@ -168,7 +168,8 @@ public class MainActivity extends ActionBarActivity {
                             int bookmark_module = Integer.parseInt(bookmark[0]);
                             int bookmark_slide = Integer.parseInt(bookmark[1]);
                             String attempt_id = bookmarkID.split("=")[1];
-                            sendResumeStatements(bookmark_module, attempt_id, bookmark_slide, actor);
+                            launchBookmarkPopUp(bookmark_module, bookmark_slide, attempt_id, actor);
+                            //sendResumeStatements(bookmark_module, attempt_id, bookmark_slide, actor);
                         }
                         catch (Exception ex){
                             Toast.makeText(getApplicationContext(), "Couldn't read activity state attempt data: " + ex.getMessage(), Toast.LENGTH_LONG).show();
@@ -177,6 +178,53 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         }
+    }
+    private String getModuleName(int mId){
+        String rv = "";
+        switch (mId){
+            case 0:
+                rv = getString(R.string.mod_what_name);
+                break;
+            case 1:
+                rv = getString(R.string.mod_pruning_name);
+                break;
+            case 2:
+                rv = getString(R.string.mod_deadheading_name);
+                break;
+            case 3:
+                rv = getString(R.string.mod_shearing_name);
+                break;
+            case 4:
+                rv = getString(R.string.mod_hybrids_name);
+                break;
+            case 5:
+                rv = getString(R.string.mod_styles_name);
+                break;
+            case 6:
+                rv = getString(R.string.mod_symbolism_name);
+                break;
+        }
+        return rv;
+    }
+    private void launchBookmarkPopUp(final int moduleId, final int slide, final String attemptId, final Agent actor){
+        String module_name = getModuleName(moduleId);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.dialog_title))
+                .setMessage(module_name + " Slide " + (slide+1));
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int id){
+                sendResumeStatements(moduleId, attemptId, slide, actor);
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int id){
+                dialog.cancel();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void sendResumeStatements(int moduleId, String attemptId, int slide, Agent actor){

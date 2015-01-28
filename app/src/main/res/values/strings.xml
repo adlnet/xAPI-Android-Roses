@@ -20,6 +20,7 @@
     <string name="suspend_button">Suspend</string>
     <string name="previous_button">Prev</string>
     <string name="next_button">Next</string>
+    <string name="dialog_title">Continue from last bookmark?</string>
 
     <string name="title_activity_rose">RoseActivity</string>
     <string name="title_activity_pruning">PruningActivity</string>
@@ -38,8 +39,7 @@
     <string name="scorm_profile_activity_category_id">http://adlnet.gov/xapi/profile/scorm</string>
     <string name="context_name_desc">Roses Job Aid xAPI Example</string>
     <string name="mod_description_prefix">Roses Job Aid</string>
-    <string name="result_ext_module_path">/resultExtensions/module</string>
-    <string name="result_ext_slide_path">/resultExtensions/slide</string>
+
 
     <string name="mod_what_1">A rose is a woody perennial of the genus Rosa, within the family Rosaceae. There are over 100 species and thousands of cultivars.
         They form a group of plants that can be erect shrubs, climbing or trailing with stems that are often armed with sharp prickles.
