@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Roses xAPI Demo</string>
+    <string name="app_title">Introduction to Roses xAPI Demo</string>
+    <string name="app_activity_iri">http://adlnet.gov/jobaid/roses</string>
+    <string name="app_activity_name">Roses Job Aid xAPI Example</string>
+    <string name="app_activity_description">Roses Job Aid</string>
+
+    <string name="lrs_endpoint">https://lrs.adlnet.gov/xapi/</string>
+    <string name="lrs_user">lou</string>
+    <string name="lrs_password">password</string>
+
+    <string name="preferences_screen_title">Create xAPI Actor Account</string>
+    <string name="preferences_key">org.adl.roses.preferences</string>
+    <string name="preferences_name_key">name</string>
+    <string name="preferences_email_key">email</string>
+    <string name="preferences_bookmark_key">bookmark</string>
+    <string name="preference_send_init">send_init</string>
+    <string name="action_settings">Settings</string>
+    <string name="dialog_title">Continue from last bookmark?</string>
+    <string name="default_name">Anonymous</string>
+    <string name="default_email">anonymous@anon.com</string>
+    <string name="read_verb">http://example.com/verbs/read</string>
+
+    <string name="suspend_button">Suspend</string>
+    <string name="previous_button">Prev</string>
+    <string name="next_button">Next</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Cancel</string>
+
+    <string name="title_activity_rose">RoseActivity</string>
+    <string name="title_activity_pruning">PruningActivity</string>
+    <string name="title_activity_dead_heading">DeadHeadingActivity</string>
+    <string name="title_activity_shearing">ShearingActivity</string>
+    <string name="title_activity_hybrids">HybridsActivity</string>
+    <string name="title_activity_floristry">FloristryActivity</string>
+    <string name="title_activity_symbolism">SymbolismActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="retrieve_attempts_error">Could not retrieve attempts from state: </string>
+    <string name="retrieve_as_attempt_error">Could not read activity state attempt data: </string>
+    <string name="statement_write_error">Write Statement Error: </string>
+    <string name="statement_get_error">Get Statement Error: </string>
+    <string name="get_as_error">No activity state returned (could not exist yet)</string>
+    <string name="write_as_error">Write State Error: </string>
+    <string name="updating_as_error">Error with updating activity state: </string>
+
+    <string name="intent_request_code">requestCode</string>
+    <string name="intent_slide">slideId</string>
+    <string name="intent_actor_name">actorName</string>
+    <string name="intent_actor_email">actorEmail</string>
+    <string name="intent_attempt">attemptId</string>
+
+    <string name="scorm_profile_activity_state_id">http://adlnet.gov/xapi/profile/scorm/activity-state</string>
+    <string name="scorm_profile_attempt_state_id">"http://adlnet.gov/xapi/profile/scorm/attempt-state</string>
+    <string name="scorm_profile_activity_type_lesson_id">http://adlnet.gov/expapi/activities/lesson</string>
+    <string name="scorm_profile_activity_type_course_id">http://adlnet.gov/expapi/activities/course</string>
+    <string name="scorm_profile_activity_type_attempt_id">http://adlnet.gov/expapi/activities/attempt</string>
+    <string name="scorm_profile_activity_category_id">http://adlnet.gov/xapi/profile/scorm</string>
+
+    <string name="mod_what_path">/what</string>
+    <string name="mod_what_name">What is a Rose?</string>
+    <string name="mod_what_description">Roses Job Aid - What is a Rose</string>
+    <string name="mod_what_1">A rose is a woody perennial of the genus Rosa, within the family Rosaceae. There are over 100 species and thousands of cultivars.
+        They form a group of plants that can be erect shrubs, climbing or trailing with stems that are often armed with sharp prickles.
+        Flowers vary in size and shape and are usually large and showy, in colours ranging from white through yellows and reds.
+        Most species are native to Asia, with smaller numbers native to Europe, North America, and northwest Africa. Species,
+        cultivars and hybrids are all widely grown for their beauty and often are fragrant. Rose plants range in size from compact, miniature roses,
+        to climbers that can reach seven meters in height. Different species hybridize easily, and this has been used in the development of the wide
+        range of garden roses</string>
+    <string name="mod_what_2">The leaves are borne alternately on the stem. In most species they are 5 to 15 centimetres (2.0 to 5.9 in) long, pinnate,
+        with (3–) 5–9 (–13) leaflets and basal stipules; the leaflets usually have a serrated margin, and often a few small prickles on the underside
+        of the stem. Most roses are deciduous but a few (particularly from South east Asia) are evergreen or nearly so.</string>
+    <string name="mod_what_3">While the sharp objects along a rose stem are commonly called "thorns", they are technically prickles — outgrowths of the
+        epidermis (the outer layer of tissue of the stem). (True thorns, as produced by e.g. Citrus or Pyracantha, are modified stems,
+        which always originate at a node and which have nodes and internodes along the length of the thorn itself.) Rose prickles are typically
+        sickle-shaped hooks, which aid the rose in hanging onto other vegetation when growing over it. Some species such as Rosa rugosa and Rosa
+        pimpinellifolia have densely packed straight prickles, probably an adaptation to reduce browsing by animals, but also possibly an adaptation
+        to trap wind-blown sand and so reduce erosion and protect their roots (both of these species grow naturally on coastal sand dunes).
+        Despite the presence of prickles, roses are frequently browsed by deer. A few species of roses have only vestigial prickles that have no points.</string>
+
+
+    <string name="mod_pruning_path">/pruning</string>
+    <string name="mod_pruning_name">Rose Pruning</string>
+    <string name="mod_pruning_description">Roses Job Aid - Pruning</string>
+    <string name="mod_pruning_1">Rose pruning, sometimes regarded as a horticultural art form, is largely dependent on the type of rose to be pruned,
+        the reason for pruning, and the time of year it is at the time of the desired pruning. Most Old Garden Roses of strict European
+        heritage (albas, damasks, gallicas, etc.) are shrubs that bloom once yearly, in late spring or early summer, on two-year-old (or older) canes.
+        Their pruning requirements are quite minimal because removal of branches will remove next year\'s flower buds. Hence pruning is usually restricted
+        to just removing weak and spent branches, plus light trimming (if necessary) to reduce overall size.</string>
+    <string name="mod_pruning_2">Modern hybrids, including the hybrid teas, floribundas, grandifloras, modern miniatures, and English roses,
+        have a complex genetic background that almost always includes China roses (which are descended from Rosa chinensis). China roses were evergrowing,
+        everblooming roses from humid subtropical regions that bloomed constantly on any new vegetative growth produced during the growing season.
+        Their modern hybrid descendants exhibit similar habits; unlike Old European Roses, modern hybrids bloom continuously (until stopped by frost)
+        on any new canes produced during the growing season. They therefore require pruning back of any spent flowering stem in order to divert the plant\'s
+        energy into producing new growth and hence new flowers.</string>
+    <string name="mod_pruning_3">Additionally, Modern Hybrids planted in cold winter climates will almost universally require a "hard" annual
+        pruning (reducing all canes to 8"–12", about 30 cm in height) in early spring. Again, because of their complex China rose background,
+        modern hybrids are typically not as cold hardy as European Old Garden Roses, and low winter temperatures often desiccate or kill exposed canes.
+        In spring, if left unpruned, these damaged canes will often die back all the way to the shrub\'s root zone, resulting in a weakened, disfigured plant.
+        The annual "hard" pruning of hybrid teas and floribundas is generally done in early spring.</string>
+
+
+    <string name="mod_deadheading_path">/deadheading</string>
+    <string name="mod_deadheading_name">Rose Dead Heading</string>
+    <string name="mod_deadheading_description">Roses Job Aid - Dead Heading</string>
+    <string name="mod_deadheading_1">This is the practice of removing any spent, faded, withered, or discoloured flowers. The purpose is to encourage the
+        plant to focus its energy and resources on forming new shoots and blooms, rather than fruit production. Deadheading may also be performed for
+        aesthetic purposes, if spent flowers are unsightly. Any roses such as Rosa glauca or Rosa moyesii that are grown for their decorative hips should
+        not be deadheaded.</string>
+    <string name="mod_deadheading_2">Snip off dead rose blooms just below the flower. You will want to leave as much of the cane on the plant while the
+        structure of the plant is developing. Also, keep as many leaves on as possible, since the plant needs them to grow strong through photosynthesis.</string>
+    <string name="mod_deadheading_3">Choose the type of roses you want to encourage. You can prune the roses in certain ways to encourage smaller,
+        numerous blooms or larger, less frequent blooms. The stem you prune is proportionate to the size of the bloom. Prune the stem away above the first
+        leaf after the bloom, known as a node, if you want to encourage many smaller buds. The new stem will start from the point at which you cut.
+        Prune the stem away at a lower points, such as a meeting of 5 leaves or even lower to encourage large blooms. It will take longer for the blooms
+        to develop, but they will be more dramatic blooms.</string>
+
+
+    <string name="mod_shearing_path">/shearing</string>
+    <string name="mod_shearing_name">Rose Shearing</string>
+    <string name="mod_shearing_description">Roses Job Aid - Shearing</string>
+    <string name="mod_shearing_1">Start by cutting out all dead wood and all canes that are diseased or damaged. Any canes that are old and
+        striated (showing deep furrows) also need to be removed. Open the bush up by removing all branches that cross through the center. Cut out very thin canes,
+        and remove any branches that cross or rub together.Keep the nice green healthy canes. </string>
+    <string name="mod_shearing_2">When removing an entire cane, make the cut as flush as you can to the bud union. If you leave a stub, it can die back
+        into the bud union allowing entry for disease and pests. You may need to use a tree saw to get the final flush cut. As the center starts to open up,
+        remove any leaves or debris to keep insects and diseases at a minimum. </string>
+    <string name="mod_shearing_3">Make all cuts above a leaf bud that points towards the outside of the plant. Make all cuts clean. Try not to make any ragged
+        cuts, as this will allow insects and disease into the plant and open it up to infection. Always prune to a healthy bud. Make sure your cut is at a 45
+        degree angle going away from the bud. </string>
+
+
+    <string name="mod_hybrids_path">/hybrids</string>
+    <string name="mod_hybrids_name">Rose Hybrids</string>
+    <string name="mod_hybrids_description">Roses Job Aid - Hybrids</string>
+    <string name="mod_hybrids_1">The favourite rose for much of the history of modern roses, hybrid teas were initially created by hybridising Hybrid Perpetuals
+        with Tea roses in the late 19th century. \'La France\', created in 1867, is universally acknowledged as the first indication of a new class of roses.
+        Hybrid teas exhibit traits midway between both parents: hardier than the teas but less hardy than the hybrid perpetuals, and more ever-blooming than
+        the hybrid perpetuals but less so than the teas. The flowers are well-formed with large, high-centred buds, and each flowering stem typically terminates
+        in a single shapely bloom. The shrubs tend to be stiffly upright and sparsely foliaged, which today is often seen as a liability because it makes them
+        more difficult to place in the garden or landscape.</string>
+    <string name="mod_hybrids_2">The French breeder Joseph Pernet-Ducher initiated the first class of roses to include genes from the old Austrian briar
+        rose (Rosa foetida) with his 1900 introduction of \'Soleil d\'Or.\' This resulted in an entirely new colour range for roses: shades of deep yellow,
+        apricot, copper, orange, true scarlet, yellow bicolours, lavender, gray, and even brown were now possible. Originally considered a separate class,
+        the Pernetianas or Hybrid Foetidas were officially merged into the Hybrid Teas in 1930. The new colour range did much to increase hybrid tea popularity
+        in the 20th century, but these colours came at a price: Rosa foetida also passed on a tendency toward disease-susceptibility, scentless blooms,
+        and an intolerance of pruning to its descendants.</string>
+    <string name="mod_hybrids_3">"Polyantha - Literally \'many-flowered\' roses, from the Greek \'poly\' (many) and \'anthos\' (flower). Originally derived from
+        crosses between twoEast Asian species (Rosa chinensis and Rosa multiflora), polyanthas first appeared in France in the late 19th century alongside the
+        hybrid teas.They featured short plants—some compact, others spreading in habit—with tiny blooms (2.5 cm or 1 inch in diameter on average) carried in large
+        sprays,in the typical rose colours of white, pink and red. Their main claim to fame was their prolific bloom: From spring to fall, a healthy polyantha
+        shrubmight be literally covered in flowers, creating a strong colour impact in the landscape. Polyantha roses are still regarded as low-maintenance,
+        disease-resistant garden roses today, and remain popular for that reason."</string>
+
+
+    <string name="mod_styles_path">/styles</string>
+    <string name="mod_styles_name">Rose Styles</string>
+    <string name="mod_styles_description">Roses Job Aid - Styles</string>
+    <string name="mod_styles_1">The wild roses (also known as species roses) include the natural species and some of their immediate hybrid descendents.
+        The wild roses commonly grown in gardens include Rosa moschata, the Musk Rose; Rosa banksiae, Lady Banks\' Rose; Rosa pimpinellifolia, the Scots or
+        Burnet Rose; Rosa rubiginosa, the Sweetbriar or Eglantine; and Rosa foetida, in varieties \'Austrian Copper\', \'Persian Double\' and \'Harison\'s Yellow\'.
+        For most of these, the plants found in cultivation are often selected clones that are propagated vegetatively. Wild roses are low-maintenance
+        shrubs in comparison to other garden roses, usually tolerating poor soil and some shade. They generally have only one flush of blooms per year,
+        although some species have large hips in the autumn (e.g. Rosa moyesii) or have colourful autumn foliage (e.g. Rosa virginiana)</string>
+    <string name="mod_styles_2">An Old Garden Rose is defined as any rose belonging to a class which existed before the introduction of the first Modern Rose,
+        La France, in 1867. Alternative terms for this group include heritage and historic roses. In general, Old Garden Roses of European or Mediterranean
+        origin are once-blooming woody shrubs, with notably fragrant, double-flowered blooms primarily in shades of white, pink and crimson-red.
+        The shrubs\' foliage tends to be highly disease-resistant, and they generally bloom only from canes (stems) which formed in previous years.
+        The introduction of China and Tea roses from East Asia around 1800 led to new classes of Old Garden Roses which bloom on new growth, often repeatedly
+        from spring to fall.</string>
+    <string name="mod_styles_3">Centifolia roses are also known as Cabbage roses, or as Provence roses. They are derived from Rosa x centifolia,
+        a hybrid that appeared in the 17th century in the Netherlands, related to damask roses. They are named for their "one hundred" petals;
+        they are often called "cabbage" roses due to the globular shape of the flowers. The centifolias are all once-flowering. As a class,
+        they are notable for their inclination to produce mutations of various sizes and forms, including moss roses and some of the first miniature
+        roses. Examples: \'Centifolia\', \'Paul Ricault\'.</string>
+
+
+    <string name="mod_symbolism_path">/symbolism</string>
+    <string name="mod_symbolism_name">Rose Symbolism</string>
+    <string name="mod_symbolism_description">Roses Job Aid - Symbolism</string>
+    <string name="mod_symbolism_1">The rose was sacred to a number of goddesses including Isis, whose rose appears in the late classical allegorical novel
+        The Golden Ass as "the sweet Rose of reason and virtue" that saves the hero from his bewitched life in the form of a donkey. The ancient Greeks and
+        Romans identified the rose with the goddess of love, Aphrodite (Greek name) and Venus (Roman name).In Rome a wild rose would be placed on the door of
+        a room where secret or confidential matters were discussed. The phrase sub rosa, or "under the rose", means to keep a secret — derived from this ancient
+        Roman practice.</string>
+    <string name="mod_symbolism_2">The rose is the national flower of England. The usage dates from the reign of Henry VII who introduced the Tudor rose,
+        combining a red rose, representing the House of Lancaster, and a white rose, representing the House of York, as a symbol of unity after the English
+        civil wars of the 15th century which, long after, came to be called the Wars of the Roses. The rose thus appears in the histories of William Shakespeare
+        and in the Child Ballads. It has been the symbol of England Rugby, and of the Rugby Football Union, since 1871.</string>
+    <string name="mod_symbolism_3">In 1986 it was named the floral emblem of the United States, and it is the provincial flower of Alberta (the wild rose) in Canada.
+        It is the state flower of four US states: Iowa and North Dakota (R. arkansana), Georgia (R. laevigata), and New York (Rosa generally). Portland,
+        Oregon counts "City of Roses" among its nicknames, and holds an annual Rose Festival, as does Pasadena, California, holding the Tournament of Roses Parade
+        since 1890 in conjunction with the Rose Bowl since 1902. In April 2011, the United States government space program agency National Aeronautics and Space
+        Administration celebrated the Hubble Space Telescope\'s 21st anniversary by releasing an image of spiral galaxies positioned in a rose-like shape.</string>
+
+
+</resources>

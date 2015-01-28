@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="modules_path">
+        <item>@string/mod_what_path</item>
+        <item>@string/mod_pruning_path</item>
+        <item>@string/mod_deadheading_path</item>
+        <item>@string/mod_shearing_path</item>
+        <item>@string/mod_hybrids_path</item>
+        <item>@string/mod_styles_path</item>
+        <item>@string/mod_symbolism_path</item>
+    </array>
+    <array name="modules_name">
+        <item>@string/mod_what_name</item>
+        <item>@string/mod_pruning_name</item>
+        <item>@string/mod_deadheading_name</item>
+        <item>@string/mod_shearing_name</item>
+        <item>@string/mod_hybrids_name</item>
+        <item>@string/mod_styles_name</item>
+        <item>@string/mod_symbolism_name</item>
+    </array>
+    <array name="modules_desc">
+        <item>@string/mod_what_description</item>
+        <item>@string/mod_pruning_description</item>
+        <item>@string/mod_deadheading_description</item>
+        <item>@string/mod_shearing_description</item>
+        <item>@string/mod_hybrids_description</item>
+        <item>@string/mod_styles_description</item>
+        <item>@string/mod_symbolism_description</item>
+    </array>
+</resources>
