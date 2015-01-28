@@ -44,15 +44,6 @@ public class MainActivity extends ActionBarActivity {
     private String _actor_name;
     private String _actor_email;
 
-    // result codes (based off of order of modules in arrays.xml)
-    private final int _result_what = 0;
-    private final int _result_pruning = 1;
-    private final int _result_deadheading = 2;
-    private final int _result_shearing = 3;
-    private final int _result_hybrids = 4;
-    private final int _result_styles = 5;
-    private final int _result_symbolism = 6;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +68,7 @@ public class MainActivity extends ActionBarActivity {
         // setup the list of content options
         ListView mainListView = (ListView)findViewById(R.id.list);
         // get the array resource
-        String[] modules = getResources().getStringArray(R.array.modules);
+        String[] modules = getResources().getStringArray(R.array.modules_name);
         ArrayList<String> moduleList = new ArrayList<String>();
         moduleList.addAll(Arrays.asList(modules));
         ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, R.layout.simplerow, moduleList);
@@ -86,7 +77,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id){
-                sendStatements(position, false, null, 0);
+                sendStatements(position, null, 0, false);
             }
         });
 
@@ -123,7 +114,8 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
             catch (Exception ex){
-                Toast.makeText(getApplicationContext(), "Couldn't retrieve attempts from state: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.retrieve_attempts_error) + ex.getMessage(),
+                        Toast.LENGTH_LONG).show();
             }
         }
 
@@ -168,57 +160,30 @@ public class MainActivity extends ActionBarActivity {
                             int bookmark_module = Integer.parseInt(bookmark[0]);
                             int bookmark_slide = Integer.parseInt(bookmark[1]);
                             String attempt_id = bookmarkID.split("=")[1];
-                            launchBookmarkPopUp(bookmark_module, bookmark_slide, attempt_id, actor);
-                            //sendResumeStatements(bookmark_module, attempt_id, bookmark_slide, actor);
+                            launchBookmarkDialog(bookmark_module, bookmark_slide, attempt_id, actor);
                         }
                         catch (Exception ex){
-                            Toast.makeText(getApplicationContext(), "Couldn't read activity state attempt data: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getString(R.string.retrieve_as_attempt_error) + ex.getMessage(),
+                                    Toast.LENGTH_LONG).show();
                         }
                     }
                 }
             }
         }
     }
-    private String getModuleName(int mId){
-        String rv = "";
-        switch (mId){
-            case 0:
-                rv = getString(R.string.mod_what_name);
-                break;
-            case 1:
-                rv = getString(R.string.mod_pruning_name);
-                break;
-            case 2:
-                rv = getString(R.string.mod_deadheading_name);
-                break;
-            case 3:
-                rv = getString(R.string.mod_shearing_name);
-                break;
-            case 4:
-                rv = getString(R.string.mod_hybrids_name);
-                break;
-            case 5:
-                rv = getString(R.string.mod_styles_name);
-                break;
-            case 6:
-                rv = getString(R.string.mod_symbolism_name);
-                break;
-        }
-        return rv;
-    }
-    private void launchBookmarkPopUp(final int moduleId, final int slide, final String attemptId, final Agent actor){
-        String module_name = getModuleName(moduleId);
+    private void launchBookmarkDialog(final int moduleId, final int slide, final String attemptId, final Agent actor){
+        String module_name = getResources().getStringArray(R.array.modules_name)[moduleId];
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.dialog_title))
-                .setMessage(module_name + " Slide " + (slide+1));
+                .setMessage(module_name + " Slide - " + (slide + 1));
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+        builder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener(){
             public void onClick(DialogInterface dialog, int id){
                 sendResumeStatements(moduleId, attemptId, slide, actor);
                 dialog.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+        builder.setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener(){
             public void onClick(DialogInterface dialog, int id){
                 dialog.cancel();
             }
@@ -226,57 +191,25 @@ public class MainActivity extends ActionBarActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+    private ModuleData setModuleData(int moduleId, Boolean mc){
+        ModuleData returnData = new ModuleData();
+        returnData.setPath(getResources().getStringArray(R.array.modules_path)[moduleId]);
+        returnData.setName(getResources().getStringArray(R.array.modules_name)[moduleId]);
+        returnData.setDesc(getResources().getStringArray(R.array.modules_desc)[moduleId]);
+
+        if (mc){
+            returnData.setModule_class(moduleId);
+        }
+        return returnData;
+    }
 
     private void sendResumeStatements(int moduleId, String attemptId, int slide, Agent actor){
-        String path = "";
-        String name = "";
-        String desc = "";
-        Class module_class = null;
-        switch(moduleId)
-        {
-            case _result_what:
-                path = getString(R.string.mod_what_path);
-                name = getString(R.string.mod_what_name);
-                desc = getString(R.string.mod_what_description);
-                module_class = RoseActivity.class;
-                break;
-            case _result_pruning:
-                path = getString(R.string.mod_pruning_path);
-                name = getString(R.string.mod_pruning_name);
-                desc = getString(R.string.mod_pruning_description);
-                module_class = PruningActivity.class;
-                break;
-            case _result_deadheading:
-                path = getString(R.string.mod_deadheading_path);
-                name = getString(R.string.mod_deadheading_name);
-                desc = getString(R.string.mod_deadheading_description);
-                module_class = DeadHeadingActivity.class;
-                break;
-            case _result_shearing:
-                path = getString(R.string.mod_shearing_path);
-                name = getString(R.string.mod_shearing_name);
-                desc = getString(R.string.mod_shearing_description);
-                module_class = ShearingActivity.class;
-                break;
-            case _result_hybrids:
-                path = getString(R.string.mod_hybrids_path);
-                name = getString(R.string.mod_hybrids_name);
-                desc = getString(R.string.mod_hybrids_description);
-                module_class = HybridsActivity.class;
-                break;
-            case _result_styles:
-                path = getString(R.string.mod_styles_path);
-                name = getString(R.string.mod_styles_name);
-                desc = getString(R.string.mod_styles_description);
-                module_class = FloristryActivity.class;
-                break;
-            case _result_symbolism:
-                path = getString(R.string.mod_symbolism_path);
-                name = getString(R.string.mod_symbolism_name);
-                desc = getString(R.string.mod_symbolism_description);
-                module_class = SymbolismActivity.class;
-                break;
-        }
+        ModuleData md = setModuleData(moduleId, true);
+        String path = md.path;
+        String name = md.name;
+        String desc = md.desc;
+        Class module_class = md.module_class;
+
         Activity stmt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
         Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
                 "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
@@ -284,57 +217,22 @@ public class MainActivity extends ActionBarActivity {
         MyStatementParams resume_params = new MyStatementParams(actor, Verbs.resumed(), stmt_act, con);
         WriteStatementTask resume_stmt_task = new WriteStatementTask();
         resume_stmt_task.execute(resume_params);
+
         Intent resumeActivity = new Intent(MainActivity.this, module_class);
-        resumeActivity.putExtra("slideId", slide);
-        resumeActivity.putExtra("actorName", _actor_name);
-        resumeActivity.putExtra("actorEmail", _actor_email);
-        resumeActivity.putExtra("attemptId", attemptId);
+        resumeActivity.putExtra(getString(R.string.intent_slide), slide);
+        resumeActivity.putExtra(getString(R.string.intent_actor_name), _actor_name);
+        resumeActivity.putExtra(getString(R.string.intent_actor_email), _actor_email);
+        resumeActivity.putExtra(getString(R.string.intent_attempt), attemptId);
         startActivityForResult(resumeActivity, moduleId);
     }
     private void sendSuspendedStatements(int moduleId, String attemptId, int slide){
         checkActor();
         Agent actor = new Agent(_actor_name, _actor_email);
-        String path = "";
-        String name = "";
-        String desc = "";
-        switch(moduleId)
-        {
-            case _result_what:
-                path = getString(R.string.mod_what_path);
-                name = getString(R.string.mod_what_name);
-                desc = getString(R.string.mod_what_description);
-                break;
-            case _result_pruning:
-                path = getString(R.string.mod_pruning_path);
-                name = getString(R.string.mod_pruning_name);
-                desc = getString(R.string.mod_pruning_description);
-                break;
-            case _result_deadheading:
-                path = getString(R.string.mod_deadheading_path);
-                name = getString(R.string.mod_deadheading_name);
-                desc = getString(R.string.mod_deadheading_description);
-                break;
-            case _result_shearing:
-                path = getString(R.string.mod_shearing_path);
-                name = getString(R.string.mod_shearing_name);
-                desc = getString(R.string.mod_shearing_description);
-                break;
-            case _result_hybrids:
-                path = getString(R.string.mod_hybrids_path);
-                name = getString(R.string.mod_hybrids_name);
-                desc = getString(R.string.mod_hybrids_description);
-                break;
-            case _result_styles:
-                path = getString(R.string.mod_styles_path);
-                name = getString(R.string.mod_styles_name);
-                desc = getString(R.string.mod_styles_description);
-                break;
-            case _result_symbolism:
-                path = getString(R.string.mod_symbolism_path);
-                name = getString(R.string.mod_symbolism_name);
-                desc = getString(R.string.mod_symbolism_description);
-                break;
-        }
+        ModuleData md = setModuleData(moduleId, false);
+        String path = md.path;
+        String name = md.name;
+        String desc = md.desc;
+
         Activity sus_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
         Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
                 "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
@@ -344,93 +242,33 @@ public class MainActivity extends ActionBarActivity {
         sus_stmt_task.execute(sus_params);
 
         updateActivityState(attempt_act, actor, moduleId, slide);
-
-        SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt("moduleId", moduleId);
-        editor.putInt("slide", slide);
-        editor.putString("attemptId", attemptId);
-        editor.putString("bookmarkedUser", actor.getMbox());
-        editor.commit();
     }
-    private void sendStatements(int moduleId, boolean isResult, String mod_attempt_id, int slide){
+    private void sendStatements(int moduleId, String attemptId, int slide, boolean isResult){
         checkActor();
         Agent actor = new Agent(_actor_name, _actor_email);
-        Class mod_class = null;
-        String path = "";
-        String name = "";
-        String desc = "";
-        switch(moduleId)
-        {
-            case _result_what:
-                path = getString(R.string.mod_what_path);
-                name = getString(R.string.mod_what_name);
-                desc = getString(R.string.mod_what_description);
-                mod_class = RoseActivity.class;
-                break;
-            case _result_pruning:
-                path = getString(R.string.mod_pruning_path);
-                name = getString(R.string.mod_pruning_name);
-                desc = getString(R.string.mod_pruning_description);
-                mod_class = PruningActivity.class;
-                break;
-            case _result_deadheading:
-                path = getString(R.string.mod_deadheading_path);
-                name = getString(R.string.mod_deadheading_name);
-                desc = getString(R.string.mod_deadheading_description);
-                mod_class = DeadHeadingActivity.class;
-                break;
-            case _result_shearing:
-                path = getString(R.string.mod_shearing_path);
-                name = getString(R.string.mod_shearing_name);
-                desc = getString(R.string.mod_shearing_description);
-                mod_class = ShearingActivity.class;
-                break;
-            case _result_hybrids:
-                path = getString(R.string.mod_hybrids_path);
-                name = getString(R.string.mod_hybrids_name);
-                desc = getString(R.string.mod_hybrids_description);
-                mod_class = HybridsActivity.class;
-                break;
-            case _result_styles:
-                path = getString(R.string.mod_styles_path);
-                name = getString(R.string.mod_styles_name);
-                desc = getString(R.string.mod_styles_description);
-                mod_class = FloristryActivity.class;
-                break;
-            case _result_symbolism:
-                path = getString(R.string.mod_symbolism_path);
-                name = getString(R.string.mod_symbolism_name);
-                desc = getString(R.string.mod_symbolism_description);
-                mod_class = SymbolismActivity.class;
-                break;
-        }
+        ModuleData md = setModuleData(moduleId, true);
+        String path = md.path;
+        String name = md.name;
+        String desc = md.desc;
+        Class module_class = md.module_class;
+
         if (!isResult){
-            Intent mod_intent = new Intent(MainActivity.this, mod_class);
-            mod_intent.putExtra("slideId", slide);
-            mod_intent.putExtra("actorName", _actor_name);
-            mod_intent.putExtra("actorEmail", _actor_email);
+            Intent mod_intent = new Intent(MainActivity.this, module_class);
+            mod_intent.putExtra(getString(R.string.intent_slide), slide);
+            mod_intent.putExtra(getString(R.string.intent_actor_name), _actor_name);
+            mod_intent.putExtra(getString(R.string.intent_actor_email), _actor_email);
             startActivityForResult(mod_intent, moduleId);
         }
         else{
             // This is called when returning from a rose module - need to keep same attemptId
             Activity mod_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
-            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + mod_attempt_id,
+            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
                     "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
             Context con = createContext(attempt_act);
             // returned result from launched activity, send terminated
             MyStatementParams terminate_params = new MyStatementParams(actor, Verbs.terminated(), mod_act, con);
             WriteStatementTask terminate_stmt_task = new WriteStatementTask();
             terminate_stmt_task.execute(terminate_params);
-
-            // Clear local bookmark storage when module is terminated
-            SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.remove("moduleId");
-            editor.remove("slide");
-            editor.remove("attemptId");
-            editor.remove("bookmarkedUser");
-            editor.commit();
         }
     }
 
@@ -446,6 +284,12 @@ public class MainActivity extends ActionBarActivity {
         sus_as_task.execute(as_sus_params);
     }
 
+    private void checkActor(){
+        if ((_actor_name == null || _actor_name.equals("")) || (_actor_email == null || _actor_email.equals(""))){
+            _actor_name = getString(R.string.default_name);
+            _actor_email = getString(R.string.default_email);
+        }
+    }
     private Context createContext(Activity attempt_act){
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
@@ -474,12 +318,6 @@ public class MainActivity extends ActionBarActivity {
         act.setDefinition(act_def);
         return act;
     }
-    private void checkActor(){
-        if ((_actor_name == null || _actor_name.equals("")) || (_actor_email == null || _actor_email.equals(""))){
-            _actor_name = "Anonymous";
-            _actor_email = "anonymous@anon.com";
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -505,20 +343,19 @@ public class MainActivity extends ActionBarActivity {
     }
     @Override
     public void startActivityForResult(Intent intent, int requestCode){
-        intent.putExtra("requestCode", requestCode);
+        intent.putExtra(getString(R.string.intent_request_code), requestCode);
         super.startActivityForResult(intent, requestCode);
     }
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
         Bundle extras = data.getExtras();
         String attemptId = "";
         int slide = 0;
         if (extras != null){
-            attemptId = extras.getString("attemptId", "");
-            slide = extras.getInt("slideId", 0);
+            attemptId = extras.getString(getString(R.string.intent_attempt), "");
+            slide = extras.getInt(getString(R.string.intent_slide), 0);
         }
         if(resultCode == RESULT_OK) {
-            sendStatements(requestCode, true, attemptId, slide);
+            sendStatements(requestCode, attemptId, slide, true);
         }
         else{
             sendSuspendedStatements(requestCode, attemptId, slide);
@@ -600,8 +437,8 @@ public class MainActivity extends ActionBarActivity {
 
         protected void onPostExecute(Pair<Boolean, String> p){
             if (!p.first){
-                String msg = "Write Statement Error: ";
-                Toast.makeText(getApplicationContext(), msg + p.second, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.statement_write_error) + p.second,
+                        Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -632,8 +469,8 @@ public class MainActivity extends ActionBarActivity {
 
         protected void onPostExecute(MyReturnStatementData sd){
             if (!sd.success){
-                String msg = "Get Statement Error: ";
-                Toast.makeText(getApplicationContext(), msg + sd.result, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.statement_get_error) + sd.result,
+                        Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -644,13 +481,6 @@ public class MainActivity extends ActionBarActivity {
         Context c;
         String aID;
         Result r;
-        MyStatementParams(Agent ag, Verb v, Activity a, Context c, Result r){
-            this.ag = ag;
-            this.v = v;
-            this.a = a;
-            this.c = c;
-            this.r = r;
-        }
         MyStatementParams(Agent ag, Verb v, Activity a, Context c){
             this.ag = ag;
             this.v = v;
@@ -692,7 +522,7 @@ public class MainActivity extends ActionBarActivity {
 
         protected void onPostExecute(MyReturnActivityStateData asd){
             if (!asd.success){
-                Toast.makeText(getApplicationContext(), "No activity state returned (could not exist yet)", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.get_as_error), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -716,8 +546,8 @@ public class MainActivity extends ActionBarActivity {
 
         protected void onPostExecute(Pair<Boolean, String> p){
             if (!p.first){
-                String msg = "Write State Error: ";
-                Toast.makeText(getApplicationContext(), msg + p.second, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.write_as_error) + p.second,
+                        Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -743,6 +573,48 @@ public class MainActivity extends ActionBarActivity {
         MyReturnActivityStateData(boolean s, JsonObject state){
             this.success = s;
             this.state = state;
+        }
+    }
+    private class ModuleData{
+        String path;
+        String name;
+        String desc;
+        Class module_class;
+
+        ModuleData(){}
+        public void setPath(String path) {
+            this.path = path;
+        }
+        public void setName(String name) {
+            this.name = name;
+        }
+        public void setDesc(String desc) {
+            this.desc = desc;
+        }
+        public void setModule_class(int module_class) {
+            switch(module_class){
+                case 0:
+                    this.module_class = RoseActivity.class;
+                    break;
+                case 1:
+                    this.module_class = PruningActivity.class;
+                    break;
+                case 2:
+                    this.module_class = DeadHeadingActivity.class;
+                    break;
+                case 3:
+                    this.module_class = ShearingActivity.class;
+                    break;
+                case 4:
+                    this.module_class = HybridsActivity.class;
+                    break;
+                case 5:
+                    this.module_class = FloristryActivity.class;
+                    break;
+                case 6:
+                    this.module_class = SymbolismActivity.class;
+                    break;
+            }
         }
     }
 }

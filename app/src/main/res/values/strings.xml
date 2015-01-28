@@ -4,6 +4,8 @@
     <string name="app_name">Roses xAPI Demo</string>
     <string name="app_title">Introduction to Roses xAPI Demo</string>
     <string name="app_activity_iri">http://adlnet.gov/jobaid/roses</string>
+    <string name="app_activity_name">Roses Job Aid xAPI Example</string>
+    <string name="app_activity_description">Roses Job Aid</string>
 
     <string name="lrs_endpoint">https://lrs.adlnet.gov/xapi/</string>
     <string name="lrs_user">lou</string>
@@ -16,11 +18,15 @@
     <string name="preferences_bookmark_key">bookmark</string>
     <string name="preference_send_init">send_init</string>
     <string name="action_settings">Settings</string>
+    <string name="dialog_title">Continue from last bookmark?</string>
+    <string name="default_name">Anonymous</string>
+    <string name="default_email">anonymous@anon.com</string>
 
     <string name="suspend_button">Suspend</string>
     <string name="previous_button">Prev</string>
     <string name="next_button">Next</string>
-    <string name="dialog_title">Continue from last bookmark?</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Cancel</string>
 
     <string name="title_activity_rose">RoseActivity</string>
     <string name="title_activity_pruning">PruningActivity</string>
@@ -31,16 +37,29 @@
     <string name="title_activity_symbolism">SymbolismActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
+    <string name="retrieve_attempts_error">Couldn't retrieve attempts from state: </string>
+    <string name="retrieve_as_attempt_error">Couldn't read activity state attempt data: </string>
+    <string name="statement_write_error">Write Statement Error: </string>
+    <string name="statement_get_error">Get Statement Error: </string>
+    <string name="get_as_error">No activity state returned (could not exist yet)</string>
+    <string name="write_as_error">Write State Error: </string>
+
+    <string name="intent_request_code">requestCode</string>
+    <string name="intent_slide">slideId</string>
+    <string name="intent_actor_name">actorName</string>
+    <string name="intent_actor_email">actorEmail</string>
+    <string name="intent_attempt">attemptId</string>
+
     <string name="scorm_profile_activity_state_id">http://adlnet.gov/xapi/profile/scorm/activity-state</string>
     <string name="scorm_profile_attempt_state_id">"http://adlnet.gov/xapi/profile/scorm/attempt-state</string>
     <string name="scorm_profile_activity_type_lesson_id">http://adlnet.gov/expapi/activities/lesson</string>
     <string name="scorm_profile_activity_type_course_id">http://adlnet.gov/expapi/activities/course</string>
     <string name="scorm_profile_activity_type_attempt_id">http://adlnet.gov/expapi/activities/attempt</string>
     <string name="scorm_profile_activity_category_id">http://adlnet.gov/xapi/profile/scorm</string>
-    <string name="context_name_desc">Roses Job Aid xAPI Example</string>
-    <string name="mod_description_prefix">Roses Job Aid</string>
 
-
+    <string name="mod_what_path">/what</string>
+    <string name="mod_what_name">What is a Rose?</string>
+    <string name="mod_what_description">Roses Job Aid - What is a Rose</string>
     <string name="mod_what_1">A rose is a woody perennial of the genus Rosa, within the family Rosaceae. There are over 100 species and thousands of cultivars.
         They form a group of plants that can be erect shrubs, climbing or trailing with stems that are often armed with sharp prickles.
         Flowers vary in size and shape and are usually large and showy, in colours ranging from white through yellows and reds.
@@ -58,11 +77,11 @@
         pimpinellifolia have densely packed straight prickles, probably an adaptation to reduce browsing by animals, but also possibly an adaptation
         to trap wind-blown sand and so reduce erosion and protect their roots (both of these species grow naturally on coastal sand dunes).
         Despite the presence of prickles, roses are frequently browsed by deer. A few species of roses have only vestigial prickles that have no points.</string>
-    <string name="mod_what_path">/what</string>
-    <string name="mod_what_name">What is a Rose</string>
-    <string name="mod_what_description">Roses Job Aid - What is a Rose</string>
 
 
+    <string name="mod_pruning_path">/pruning</string>
+    <string name="mod_pruning_name">Rose Pruning</string>
+    <string name="mod_pruning_description">Roses Job Aid - Pruning</string>
     <string name="mod_pruning_1">Rose pruning, sometimes regarded as a horticultural art form, is largely dependent on the type of rose to be pruned,
         the reason for pruning, and the time of year it is at the time of the desired pruning. Most Old Garden Roses of strict European
         heritage (albas, damasks, gallicas, etc.) are shrubs that bloom once yearly, in late spring or early summer, on two-year-old (or older) canes.
@@ -79,11 +98,11 @@
         modern hybrids are typically not as cold hardy as European Old Garden Roses, and low winter temperatures often desiccate or kill exposed canes.
         In spring, if left unpruned, these damaged canes will often die back all the way to the shrub\'s root zone, resulting in a weakened, disfigured plant.
         The annual "hard" pruning of hybrid teas and floribundas is generally done in early spring.</string>
-    <string name="mod_pruning_path">/pruning</string>
-    <string name="mod_pruning_name">Rose Pruning</string>
-    <string name="mod_pruning_description">Roses Job Aid - Pruning</string>
 
 
+    <string name="mod_deadheading_path">/deadheading</string>
+    <string name="mod_deadheading_name">Rose Dead Heading</string>
+    <string name="mod_deadheading_description">Roses Job Aid - Dead Heading</string>
     <string name="mod_deadheading_1">This is the practice of removing any spent, faded, withered, or discoloured flowers. The purpose is to encourage the
         plant to focus its energy and resources on forming new shoots and blooms, rather than fruit production. Deadheading may also be performed for
         aesthetic purposes, if spent flowers are unsightly. Any roses such as Rosa glauca or Rosa moyesii that are grown for their decorative hips should
@@ -95,11 +114,11 @@
         leaf after the bloom, known as a node, if you want to encourage many smaller buds. The new stem will start from the point at which you cut.
         Prune the stem away at a lower points, such as a meeting of 5 leaves or even lower to encourage large blooms. It will take longer for the blooms
         to develop, but they will be more dramatic blooms.</string>
-    <string name="mod_deadheading_path">/deadheading</string>
-    <string name="mod_deadheading_name">Rose Dead Heading</string>
-    <string name="mod_deadheading_description">Roses Job Aid - Dead Heading</string>
 
 
+    <string name="mod_shearing_path">/shearing</string>
+    <string name="mod_shearing_name">Rose Shearing</string>
+    <string name="mod_shearing_description">Roses Job Aid - Shearing</string>
     <string name="mod_shearing_1">Start by cutting out all dead wood and all canes that are diseased or damaged. Any canes that are old and
         striated (showing deep furrows) also need to be removed. Open the bush up by removing all branches that cross through the center. Cut out very thin canes,
         and remove any branches that cross or rub together.Keep the nice green healthy canes. </string>
@@ -109,11 +128,11 @@
     <string name="mod_shearing_3">Make all cuts above a leaf bud that points towards the outside of the plant. Make all cuts clean. Try not to make any ragged
         cuts, as this will allow insects and disease into the plant and open it up to infection. Always prune to a healthy bud. Make sure your cut is at a 45
         degree angle going away from the bud. </string>
-    <string name="mod_shearing_path">/shearing</string>
-    <string name="mod_shearing_name">Rose Shearing</string>
-    <string name="mod_shearing_description">Roses Job Aid - Shearing</string>
 
 
+    <string name="mod_hybrids_path">/hybrids</string>
+    <string name="mod_hybrids_name">Rose Hybrids</string>
+    <string name="mod_hybrids_description">Roses Job Aid - Hybrids</string>
     <string name="mod_hybrids_1">The favourite rose for much of the history of modern roses, hybrid teas were initially created by hybridising Hybrid Perpetuals
         with Tea roses in the late 19th century. \'La France\', created in 1867, is universally acknowledged as the first indication of a new class of roses.
         Hybrid teas exhibit traits midway between both parents: hardier than the teas but less hardy than the hybrid perpetuals, and more ever-blooming than
@@ -132,11 +151,11 @@
         sprays,in the typical rose colours of white, pink and red. Their main claim to fame was their prolific bloom: From spring to fall, a healthy polyantha
         shrubmight be literally covered in flowers, creating a strong colour impact in the landscape. Polyantha roses are still regarded as low-maintenance,
         disease-resistant garden roses today, and remain popular for that reason."</string>
-    <string name="mod_hybrids_path">/hybrids</string>
-    <string name="mod_hybrids_name">Rose Hybrids</string>
-    <string name="mod_hybrids_description">Roses Job Aid - Hybrids</string>
 
 
+    <string name="mod_styles_path">/styles</string>
+    <string name="mod_styles_name">Rose Styles</string>
+    <string name="mod_styles_description">Roses Job Aid - Styles</string>
     <string name="mod_styles_1">The wild roses (also known as species roses) include the natural species and some of their immediate hybrid descendents.
         The wild roses commonly grown in gardens include Rosa moschata, the Musk Rose; Rosa banksiae, Lady Banks\' Rose; Rosa pimpinellifolia, the Scots or
         Burnet Rose; Rosa rubiginosa, the Sweetbriar or Eglantine; and Rosa foetida, in varieties \'Austrian Copper\', \'Persian Double\' and \'Harison\'s Yellow\'.
@@ -154,11 +173,11 @@
         they are often called "cabbage" roses due to the globular shape of the flowers. The centifolias are all once-flowering. As a class,
         they are notable for their inclination to produce mutations of various sizes and forms, including moss roses and some of the first miniature
         roses. Examples: \'Centifolia\', \'Paul Ricault\'.</string>
-    <string name="mod_styles_path">/styles</string>
-    <string name="mod_styles_name">Rose Styles</string>
-    <string name="mod_styles_description">Roses Job Aid - Styles</string>
 
 
+    <string name="mod_symbolism_path">/symbolism</string>
+    <string name="mod_symbolism_name">Rose Symbolism</string>
+    <string name="mod_symbolism_description">Roses Job Aid - Symbolism</string>
     <string name="mod_symbolism_1">The rose was sacred to a number of goddesses including Isis, whose rose appears in the late classical allegorical novel
         The Golden Ass as "the sweet Rose of reason and virtue" that saves the hero from his bewitched life in the form of a donkey. The ancient Greeks and
         Romans identified the rose with the goddess of love, Aphrodite (Greek name) and Venus (Roman name).In Rome a wild rose would be placed on the door of
@@ -173,8 +192,6 @@
         Oregon counts "City of Roses" among its nicknames, and holds an annual Rose Festival, as does Pasadena, California, holding the Tournament of Roses Parade
         since 1890 in conjunction with the Rose Bowl since 1902. In April 2011, the United States government space program agency National Aeronautics and Space
         Administration celebrated the Hubble Space Telescope\'s 21st anniversary by releasing an image of spiral galaxies positioned in a rose-like shape.</string>
-    <string name="mod_symbolism_path">/symbolism</string>
-    <string name="mod_symbolism_name">Rose Symbolism</string>
-    <string name="mod_symbolism_description">Roses Job Aid - Symbolism</string>
+
 
 </resources>

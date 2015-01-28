@@ -161,7 +161,6 @@ public class SlideFragment extends Fragment {
                 }
                 break;
         }
-
         // Inflate the layout for this fragment
         return myInflatedView;
     }

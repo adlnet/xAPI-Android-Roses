@@ -94,12 +94,12 @@ public abstract class ContentActivity extends ActionBarActivity{
             Agent actor = getActor();
             Activity init_act = createActivity(getString(R.string.app_activity_iri) + path,
                     name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
-            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path
-                            +"?attemptId=" + getCurrentAttempt(), "Attempt for " + name,
+
+            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path +"?attemptId=" + getCurrentAttempt(),
+                    "Attempt for " + name,
                     "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
 
             Context init_con = createContext(attempt_act, null, null, true);
-
             // send initialize statement
             MyStatementParams init_params = new MyStatementParams(actor, Verbs.initialized(), init_act, init_con);
             WriteStatementTask init_stmt_task = new WriteStatementTask();
@@ -288,25 +288,30 @@ public abstract class ContentActivity extends ActionBarActivity{
                 desc = getString(R.string.mod_symbolism_description);
                 break;
         }
-        Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc,
+        Activity lesson_attempt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc,
                 getString(R.string.scorm_profile_activity_type_lesson_id));
-        Activity act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
-                        getCurrentSlide(), name + " - Slide " + (getCurrentSlide() + 1),
-                        desc + " - Slide " + (getCurrentSlide() + 1), getString(R.string.scorm_profile_activity_type_lesson_id));
-        Activity slide_act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
-                        getCurrentSlide() + "?attemptId=" + getCurrentAttempt(),
-                         "Attempt for " + name + " - Slide " + (getCurrentSlide() + 1),
-                         "Attempt for " + desc + " - Slide " + (getCurrentSlide() + 1), getString(R.string.scorm_profile_activity_type_attempt_id));
-        Activity parent_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + getCurrentAttempt(),
-                "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
 
-        Context slide_con = createContext(attempt_act, slide_act, parent_act, false);
+        Activity object_act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
+                getCurrentSlide(), name + " - Slide " + (getCurrentSlide() + 1),
+                desc + " - Slide " + (getCurrentSlide() + 1),
+                getString(R.string.scorm_profile_activity_type_lesson_id));
 
+        Activity slide_attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
+                getCurrentSlide() + "?attemptId=" + getCurrentAttempt(),
+                "Attempt for " + name + " - Slide " + (getCurrentSlide() + 1),
+                "Attempt for " + desc + " - Slide " + (getCurrentSlide() + 1),
+                getString(R.string.scorm_profile_activity_type_attempt_id));
+
+        Activity parent_attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + getCurrentAttempt(),
+                "Attempt for " + name, "Attempt for " + desc,
+                getString(R.string.scorm_profile_activity_type_attempt_id));
+
+        Context slide_con = createContext(lesson_attempt_act, slide_attempt_act, parent_attempt_act, false);
         HashMap<String, String> verb_lang = new HashMap<String, String>();
         verb_lang.put("en-US", "read");
         Verb verb = new Verb("http://example.com/verbs/read", verb_lang);
         Agent actor = getActor();
-        MyStatementParams slide_init_params = new MyStatementParams(actor, verb, act, slide_con);
+        MyStatementParams slide_init_params = new MyStatementParams(actor, verb, object_act, slide_con);
         WriteStatementTask slide_init_stmt_task = new WriteStatementTask();
         slide_init_stmt_task.execute(slide_init_params);
     }
@@ -314,20 +319,22 @@ public abstract class ContentActivity extends ActionBarActivity{
     protected Agent getActor(){
         return new Agent(getIntent().getExtras().getString("actorName"), getIntent().getExtras().getString("actorEmail"));
     }
-    protected Context createContext(Activity attempt_act, Activity slide_act, Activity parent_act, boolean init){
+    protected Context createContext(Activity lesson_attempt_act, Activity slide_attempt_act, Activity parent_attempt_act, boolean init){
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
 
         ArrayList<Activity> con_act_list = new ArrayList<Activity>();
+        // Add application activity
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
                 getString(R.string.context_name_desc), getString(R.string.context_name_desc),
                 getString(R.string.scorm_profile_activity_type_course_id)));
-        con_act_list.add(attempt_act);
+        con_act_list.add(lesson_attempt_act);
 
+        // If the statement isn't init then add the parent activity to the context
         if (!init){
-            con_act_list.add(slide_act);
+            con_act_list.add(slide_attempt_act);
             ArrayList<Activity> parent_act_list = new ArrayList<Activity>();
-            parent_act_list.add(parent_act);
+            parent_act_list.add(parent_attempt_act);
             con_acts.setParent(parent_act_list);
         }
         ArrayList<Activity> cat_act_list = new ArrayList<Activity>();
@@ -371,10 +378,11 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
     @Override
     public void onBackPressed(){
+        // Pressing back terminates the module, this assumes you read the current slide
+        // you terminated it on
         sendSlideChangeStatement();
         returnResult(false);
     }
-
     protected void returnResult(boolean suspended){
         Intent returnIntent = new Intent();
         returnIntent.putExtra("attemptId", getCurrentAttempt());

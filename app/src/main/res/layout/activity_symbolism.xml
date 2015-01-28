@@ -16,6 +16,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/suspend_button"
+        android:textColor="#FFFFFF"
+        android:background="#33B5E5"
         android:layout_centerInParent="true"
         />
 
@@ -25,6 +27,8 @@
         android:layout_height="wrap_content"
         android:text="@string/previous_button"
         android:layout_below="@id/suspend"
+        android:textColor="#FFFFFF"
+        android:background="#33B5E5"
         android:layout_alignParentLeft="true"
         />
 
@@ -34,6 +38,8 @@
         android:layout_height="wrap_content"
         android:text="@string/next_button"
         android:layout_below="@id/suspend"
+        android:textColor="#FFFFFF"
+        android:background="#33B5E5"
         android:layout_alignParentRight="true"
         />
 
