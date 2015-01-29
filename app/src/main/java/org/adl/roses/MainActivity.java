@@ -608,7 +608,7 @@ public class MainActivity extends ActionBarActivity {
                     this.module_class = HybridsActivity.class;
                     break;
                 case 5:
-                    this.module_class = FloristryActivity.class;
+                    this.module_class = StylesActivity.class;
                     break;
                 case 6:
                     this.module_class = SymbolismActivity.class;
