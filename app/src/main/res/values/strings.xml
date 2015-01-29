@@ -28,6 +28,8 @@
     <string name="next_button">Next</string>
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
+    <string name="actor_name">Name</string>
+    <string name="actor_email">Email</string>
 
     <string name="title_activity_rose">RoseActivity</string>
     <string name="title_activity_pruning">PruningActivity</string>
