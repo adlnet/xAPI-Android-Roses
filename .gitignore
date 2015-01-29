@@ -48,10 +48,12 @@ Thumbs.db
 .idea
 *.gradle
 build/
+bin/
 .gradle/
 .gradletasknamecache
 gradle/
 *.properties
 gradlew
 gradlew.bat
+
 *.pro
