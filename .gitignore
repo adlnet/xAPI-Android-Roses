@@ -46,14 +46,14 @@ Thumbs.db
 
 # Android Studio
 .idea
-*.gradle
+#*.gradle
 build/
 bin/
 .gradle/
 .gradletasknamecache
 gradle/
 *.properties
-gradlew
-gradlew.bat
+#gradlew
+#gradlew.bat
 
 *.pro
