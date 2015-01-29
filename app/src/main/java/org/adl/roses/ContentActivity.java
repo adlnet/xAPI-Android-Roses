@@ -32,9 +32,6 @@ import gov.adlnet.xapi.model.Statement;
 import gov.adlnet.xapi.model.Verb;
 import gov.adlnet.xapi.model.Verbs;
 
-/**
- * Created by lou on 1/12/15.
- */
 public abstract class ContentActivity extends ActionBarActivity{
     private int _android_id;
     private int _current_slide;
@@ -55,7 +52,7 @@ public abstract class ContentActivity extends ActionBarActivity{
         setDesc(getResources().getStringArray(R.array.modules_desc)[getAndroidId()]);
 
         // Try to get attemptID, if not there generate a new attempt
-        String attemptId = getIntent().getExtras().getString(getString(R.string.intent_attempt), null);
+        String attemptId = getIntent().getStringExtra(getString(R.string.intent_attempt));
         if (attemptId == null){
             //Generate attempt
             generateAttempt();
@@ -77,8 +74,9 @@ public abstract class ContentActivity extends ActionBarActivity{
             // Update activity state
             // Get existing activity state by using SCORM activity state IRI as stateID
             // and app IRI as activityId
-            MyActivityStateParams init_as_params = new MyActivityStateParams(getActor(), null, null,
+            MyActivityStateParams init_as_params = new MyActivityStateParams(getActor(), null,
                     getString(R.string.scorm_profile_activity_state_id), getString(R.string.app_activity_iri));
+
             GetActivityStateTask get_init_as_task = new GetActivityStateTask();
             MyReturnActivityStateData init_as_result = null;
             try{
@@ -87,8 +85,14 @@ public abstract class ContentActivity extends ActionBarActivity{
             catch (Exception ex){
                 // Will get thrown in GetActivityStateTask
             }
-
-            JsonObject act_state = init_as_result.state;
+            JsonObject act_state;
+            // Make sure there was a result
+            if (init_as_result != null) {
+                act_state = init_as_result.state;
+            }
+            else{
+                act_state = null;
+            }
             JsonArray attempts = new JsonArray();
             // State could not exist first time, have to make it
             if (act_state != null){
@@ -113,7 +117,7 @@ public abstract class ContentActivity extends ActionBarActivity{
             // Write attempt state with updated attempts array
             // Write to attempt state that has attemptID as registration, SCORM activity state IRI
             // as stateID and app IRI as activityID
-            MyActivityStateParams write_updated_as_params = new MyActivityStateParams(getActor(), updated_state, null,
+            MyActivityStateParams write_updated_as_params = new MyActivityStateParams(getActor(), updated_state,
                     getString(R.string.scorm_profile_activity_state_id), getString(R.string.app_activity_iri));
             WriteActivityStateTask write_updated_as_task = new WriteActivityStateTask();
             write_updated_as_task.execute(write_updated_as_params);
@@ -178,8 +182,8 @@ public abstract class ContentActivity extends ActionBarActivity{
     protected void setCurrentAttempt(String att){this._attempt = att;}
     protected void generateAttempt(){this._attempt = UUID.randomUUID().toString();}
     protected void setActor(){
-        this._actor =  new Agent(getIntent().getExtras().getString(getString(R.string.intent_actor_name)),
-                getIntent().getExtras().getString(getString(R.string.intent_actor_email)));
+        this._actor =  new Agent(getIntent().getStringExtra(getString(R.string.intent_actor_name)),
+                getIntent().getStringExtra(getString(R.string.intent_actor_email)));
     }
     protected Agent getActor(){return this._actor;}
     protected void setName(String n){this._name = n; }
@@ -346,7 +350,7 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
 
     // Inner class to write statements to the LRS - returns boolean success and string result
-    protected class WriteStatementTask extends AsyncTask<Statement, Void, Pair<Boolean, String>> {
+    private class WriteStatementTask extends AsyncTask<Statement, Void, Pair<Boolean, String>> {
         protected Pair<Boolean, String> doInBackground(Statement... params){
             boolean success = true;
             String content;
@@ -372,7 +376,7 @@ public abstract class ContentActivity extends ActionBarActivity{
         }
     }
     // Inner class to get activity states from the LRS - returns activity state data
-    protected class GetActivityStateTask extends AsyncTask<MyActivityStateParams, Void, MyReturnActivityStateData>{
+    private class GetActivityStateTask extends AsyncTask<MyActivityStateParams, Void, MyReturnActivityStateData>{
         protected MyReturnActivityStateData doInBackground(MyActivityStateParams... params){
             JsonObject state;
             boolean success = true;
@@ -381,7 +385,7 @@ public abstract class ContentActivity extends ActionBarActivity{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
                 // This will retrieve an array of states (should only be one in the array)
-                state = ac.getActivityState(params[0].actID, params[0].a, params[0].r, params[0].stId);
+                state = ac.getActivityState(params[0].actID, params[0].a, null, params[0].stId);
             }
             catch (Exception ex){
                 success = false;
@@ -399,7 +403,7 @@ public abstract class ContentActivity extends ActionBarActivity{
         }
     }
     // Inner class to write activity state to the LRS - returns boolean success and string result
-    protected class WriteActivityStateTask extends AsyncTask<MyActivityStateParams, Void, Pair<Boolean, String>>{
+    private class WriteActivityStateTask extends AsyncTask<MyActivityStateParams, Void, Pair<Boolean, String>>{
         protected Pair<Boolean, String> doInBackground(MyActivityStateParams... params){
             boolean success;
             String content;
@@ -407,7 +411,7 @@ public abstract class ContentActivity extends ActionBarActivity{
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
-                success = ac.postActivityState(params[0].actID, params[0].a, params[0].r,
+                success = ac.postActivityState(params[0].actID, params[0].a, null,
                         params[0].stId, params[0].state);
                 content = "";
             }
@@ -429,24 +433,22 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
     // Inner class to pass activity state data to tasks
     protected class MyActivityStateParams{
-        Agent a;
-        JsonObject state;
-        String r;
-        String actID;
-        String stId;
+        final Agent a;
+        final JsonObject state;
+        final String actID;
+        final String stId;
 
-        MyActivityStateParams(Agent a, JsonObject s, String r, String stID, String actID){
+        MyActivityStateParams(Agent a, JsonObject s, String stID, String actID){
             this.a = a;
             this.state = s;
-            this.r = r;
             this.actID = actID;
             this.stId = stID;
         }
     }
     // inner class to return activity state data back to activity
     protected class MyReturnActivityStateData{
-        boolean success;
-        JsonObject state;
+        final boolean success;
+        final JsonObject state;
 
         MyReturnActivityStateData(boolean s, JsonObject state){
             this.success = s;
