@@ -64,9 +64,11 @@ public class SlideFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View myInflatedView = inflater.inflate(R.layout.fragment_slide, container, false);
+        // Grab current activity and retrieve its moduleId and slideId
         ContentActivity activity = (ContentActivity)getActivity();
         int android_act_id = activity.getAndroidId();
         int slide_id = activity.getCurrentSlide();
+        // Set the fragment's textview based on which module and slide is currently active
         TextView txt = (TextView)myInflatedView.findViewById(R.id.fragText);
         switch (android_act_id){
             case 0:

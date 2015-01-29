@@ -46,7 +46,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // set basic info
         setTitle(R.string.app_title);
         setContentView(R.layout.activity_main);
@@ -72,6 +71,7 @@ public class MainActivity extends ActionBarActivity {
         moduleList.addAll(Arrays.asList(modules));
         ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, R.layout.simplerow, moduleList);
         mainListView.setAdapter(listAdapter);
+        // Set the onclick listener to launch the module and send statements
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -85,8 +85,10 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void getBookmarkFromActivityState() {
+        // Make sure to set actor name and email if not already before checking activity state
         checkActor();
         Agent actor = new Agent(_actor_name, _actor_email);
+
         // Get activity state for app IRI as activityID and SCORM activity state IRI as stateID
         // If there are attempts, they will be listed in an Attempts array
         MyActivityStateParams get_as_params = new MyActivityStateParams(actor, null, null, getString(R.string.scorm_profile_activity_state_id),
@@ -121,12 +123,12 @@ public class MainActivity extends ActionBarActivity {
         // If there was an existing attempt IRI
         if (!bookmarkID.isEmpty()){
             // Try to retrieve a terminated statement with that bookmarkID
-            MyStatementParams term_stmt_params = new MyStatementParams(actor, Verbs.terminated(), bookmarkID);
             GetStatementsTask get_term_stmt_task = new GetStatementsTask();
             MyReturnStatementData return_term_stmt = null;
 
             try{
-                return_term_stmt = get_term_stmt_task.execute(term_stmt_params).get();
+                return_term_stmt = get_term_stmt_task.execute(new Statement(actor, Verbs.terminated(),
+                        new Activity(bookmarkID))).get();
             }
             catch (Exception ex){
                 // Will get thrown in GetStatementTask
@@ -171,6 +173,9 @@ public class MainActivity extends ActionBarActivity {
         }
     }
     private void launchBookmarkDialog(final int moduleId, final int slide, final String attemptId, final Agent actor){
+        // Once bookmarked module and slide are retrieved from activity state
+        // get the name associated with module and launch dialog to resume
+        // from bookmark
         String module_name = getResources().getStringArray(R.array.modules_name)[moduleId];
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.dialog_title))
@@ -203,20 +208,26 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void sendResumeStatements(int moduleId, String attemptId, int slide, Agent actor){
+        // Get the module data from the moduleId
         ModuleData md = setModuleData(moduleId, true);
         String path = md.path;
         String name = md.name;
         String desc = md.desc;
         Class module_class = md.module_class;
 
+        // Create parent activity that will be object of the statement
         Activity stmt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
+        // Create attempt activity
         Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
                 "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
+        // Create context and resume statement to send
         Context con = createContext(attempt_act);
-        MyStatementParams resume_params = new MyStatementParams(actor, Verbs.resumed(), stmt_act, con);
         WriteStatementTask resume_stmt_task = new WriteStatementTask();
-        resume_stmt_task.execute(resume_params);
+        Statement stmt = new Statement(actor, Verbs.resumed(), stmt_act);
+        stmt.setContext(con);
+        resume_stmt_task.execute(stmt);
 
+        // Create intent and add necessary additional infor for resuming
         Intent resumeActivity = new Intent(MainActivity.this, module_class);
         resumeActivity.putExtra(getString(R.string.intent_slide), slide);
         resumeActivity.putExtra(getString(R.string.intent_actor_name), _actor_name);
@@ -225,8 +236,11 @@ public class MainActivity extends ActionBarActivity {
         startActivityForResult(resumeActivity, moduleId);
     }
     private void sendSuspendedStatements(int moduleId, String attemptId, int slide){
+        // Make sure actor name and email are set
         checkActor();
         Agent actor = new Agent(_actor_name, _actor_email);
+
+        // Get the module data from the moduleId
         ModuleData md = setModuleData(moduleId, false);
         String path = md.path;
         String name = md.name;
@@ -236,21 +250,26 @@ public class MainActivity extends ActionBarActivity {
         Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
                 "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
         Context con = createContext(attempt_act);
-        MyStatementParams sus_params = new MyStatementParams(actor, Verbs.suspended(), sus_act, con);
         WriteStatementTask sus_stmt_task = new WriteStatementTask();
-        sus_stmt_task.execute(sus_params);
+        Statement stmt = new Statement(actor, Verbs.suspended(), sus_act);
+        stmt.setContext(con);
+        sus_stmt_task.execute(stmt);
 
         updateActivityState(attempt_act, actor, moduleId, slide);
     }
     private void sendStatements(int moduleId, String attemptId, int slide, boolean isResult){
+        // Make sure to check actor email and name are set
         checkActor();
         Agent actor = new Agent(_actor_name, _actor_email);
+
+        // Get the module data from the moduleId
         ModuleData md = setModuleData(moduleId, true);
         String path = md.path;
         String name = md.name;
         String desc = md.desc;
         Class module_class = md.module_class;
 
+        // If this isn't a result from suspended then create new intent and launch activity
         if (!isResult){
             Intent mod_intent = new Intent(MainActivity.this, module_class);
             mod_intent.putExtra(getString(R.string.intent_slide), slide);
@@ -265,9 +284,10 @@ public class MainActivity extends ActionBarActivity {
                     "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
             Context con = createContext(attempt_act);
             // returned result from launched activity, send terminated
-            MyStatementParams terminate_params = new MyStatementParams(actor, Verbs.terminated(), mod_act, con);
             WriteStatementTask terminate_stmt_task = new WriteStatementTask();
-            terminate_stmt_task.execute(terminate_params);
+            Statement stmt = new Statement(actor, Verbs.terminated(), mod_act);
+            stmt.setContext(con);
+            terminate_stmt_task.execute(stmt);
         }
     }
 
@@ -284,6 +304,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void checkActor(){
+        // Just make sure actor name and email aren't null if user doesn't put anything
         if ((_actor_name == null || _actor_name.equals("")) || (_actor_email == null || _actor_email.equals(""))){
             _actor_name = getString(R.string.default_name);
             _actor_email = getString(R.string.default_email);
@@ -294,6 +315,7 @@ public class MainActivity extends ActionBarActivity {
         ContextActivities con_acts = new ContextActivities();
 
         ArrayList<Activity> con_act_list = new ArrayList<Activity>();
+        // Include app activity
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
                 getString(R.string.app_activity_name), getString(R.string.app_activity_description),
                 getString(R.string.scorm_profile_activity_type_course_id)));
@@ -333,7 +355,6 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            //popUpDialog(true, false);
             launchSettings();
             return true;
         }
@@ -342,10 +363,12 @@ public class MainActivity extends ActionBarActivity {
     }
     @Override
     public void startActivityForResult(Intent intent, int requestCode){
+        // Whenever activity is started, include the moduleId
         intent.putExtra(getString(R.string.intent_request_code), requestCode);
         super.startActivityForResult(intent, requestCode);
     }
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        // Whenever activity is done, get moduleId, slide, and attemptId
         Bundle extras = data.getExtras();
         String attemptId = "";
         int slide = 0;
@@ -353,6 +376,7 @@ public class MainActivity extends ActionBarActivity {
             attemptId = extras.getString(getString(R.string.intent_attempt), "");
             slide = extras.getInt(getString(R.string.intent_slide), 0);
         }
+        // Depending if user suspended or not - send appropriate statement
         if(resultCode == RESULT_OK) {
             sendStatements(requestCode, attemptId, slide, true);
         }
@@ -411,20 +435,16 @@ public class MainActivity extends ActionBarActivity {
         dialog.show();
     }
 
-    protected class WriteStatementTask extends AsyncTask<MyStatementParams, Void, Pair<Boolean, String>>{
-        protected Pair<Boolean, String> doInBackground(MyStatementParams... params){
-            Statement stmt = new Statement();
-            stmt.setActor(params[0].ag);
-            stmt.setVerb(params[0].v);
-            stmt.setObject(params[0].a);
-            stmt.setContext(params[0].c);
-
+    // Inner class to send statements to the LRS - returns boolean success and string result
+    protected class WriteStatementTask extends AsyncTask<Statement, Void, Pair<Boolean, String>>{
+        protected Pair<Boolean, String> doInBackground(Statement... params){
             boolean success = true;
             String content;
+            // Try to send the statement
             try{
                 StatementClient client = new StatementClient(getString(R.string.lrs_endpoint),
                         getString(R.string.lrs_user), getString(R.string.lrs_password));
-                content = client.publishStatement(stmt);
+                content = client.publishStatement(params[0]);
             }catch(Exception ex){
                 success = false;
                 content = ex.getLocalizedMessage();
@@ -433,27 +453,27 @@ public class MainActivity extends ActionBarActivity {
             return new Pair<Boolean, String>(success, content);
         }
 
+        // Called after doInBackground for UI
         protected void onPostExecute(Pair<Boolean, String> p){
             if (!p.first){
+                // Send toast error message
                 Toast.makeText(getApplicationContext(), getString(R.string.statement_write_error) + p.second,
                         Toast.LENGTH_LONG).show();
             }
         }
     }
-    protected class GetStatementsTask extends AsyncTask<MyStatementParams, Void, MyReturnStatementData> {
-        protected MyReturnStatementData doInBackground(MyStatementParams... params) {
-            // Try getting statement first and using the object ID of the suspended statement
-            Agent actor = params[0].ag;
-            Verb verb = params[0].v;
-            String act = params[0].aID;
+    // Inner class to get statements from the LRS - returns statement data
+    protected class GetStatementsTask extends AsyncTask<Statement, Void, MyReturnStatementData> {
+        protected MyReturnStatementData doInBackground(Statement... params) {
             boolean success = true;
             StatementResult stmt_result;
             String result;
+            // Try to get statement data back
             try{
                 StatementClient sc = new StatementClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
-                stmt_result = sc.filterByActivity(act).filterByActor(actor)
-                    .filterByVerb(verb).includeRelatedActivities(true).getStatements();
+                stmt_result = sc.filterByActivity(params[0].getId()).filterByActor(params[0].getActor())
+                    .filterByVerb(params[0].getVerb()).includeRelatedActivities(true).getStatements();
                 Gson gson = new Gson();
                 result = gson.toJson(stmt_result, StatementResult.class);
             }
@@ -464,33 +484,16 @@ public class MainActivity extends ActionBarActivity {
             }
             return new MyReturnStatementData(success, result, stmt_result);
         }
-
+        // Ran after doInBackground for UI
         protected void onPostExecute(MyReturnStatementData sd){
             if (!sd.success){
+                // Send toast with error message
                 Toast.makeText(getApplicationContext(), getString(R.string.statement_get_error) + sd.result,
                         Toast.LENGTH_LONG).show();
             }
         }
     }
-    protected class MyStatementParams {
-        Agent ag;
-        Verb v;
-        Activity a;
-        Context c;
-        String aID;
-
-        MyStatementParams(Agent ag, Verb v, Activity a, Context c){
-            this.ag = ag;
-            this.v = v;
-            this.a = a;
-            this.c = c;
-        }
-        MyStatementParams(Agent ag, Verb v, String a){
-            this.ag = ag;
-            this.v = v;
-            this.aID = a;
-        }
-    }
+    // Inner class to return statement data back to activity from task
     protected class MyReturnStatementData{
         boolean success;
         String result;
@@ -502,10 +505,12 @@ public class MainActivity extends ActionBarActivity {
             this.stmt_result = sr;
         }
     }
+    // Inner class to get activity states from the LRS - returns activity state data
     protected class GetActivityStateTask extends AsyncTask<MyActivityStateParams, Void, MyReturnActivityStateData>{
         protected MyReturnActivityStateData doInBackground(MyActivityStateParams... params){
             JsonObject state;
             boolean success = true;
+            // Try to get activity state
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
@@ -519,16 +524,20 @@ public class MainActivity extends ActionBarActivity {
             return new MyReturnActivityStateData(success, state);
         }
 
+        // Ran after doInBackground for UI
         protected void onPostExecute(MyReturnActivityStateData asd){
             if (!asd.success){
+                // Send toast for error messages
                 Toast.makeText(getApplicationContext(), getString(R.string.get_as_error), Toast.LENGTH_LONG).show();
             }
         }
     }
+    // Inner class to write activity states to the LRS - returns boolean success and string state data
     protected class WriteActivityStateTask extends AsyncTask<MyActivityStateParams, Void, Pair<Boolean, String>>{
         protected Pair<Boolean, String> doInBackground(MyActivityStateParams... params){
             boolean success;
             String content;
+            // Try to get activity state
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
@@ -550,6 +559,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
+    // Inner class to send activity state data to task
     protected class MyActivityStateParams{
         Agent a;
         JsonObject state;
@@ -565,6 +575,7 @@ public class MainActivity extends ActionBarActivity {
             this.stId = stID;
         }
     }
+    // Inner class to return activity state data back to activity from task
     protected class MyReturnActivityStateData{
         boolean success;
         JsonObject state;
@@ -574,6 +585,7 @@ public class MainActivity extends ActionBarActivity {
             this.state = state;
         }
     }
+    // Inner class to hold module data for statements and activity states
     protected class ModuleData{
         String path;
         String name;
@@ -608,7 +620,7 @@ public class MainActivity extends ActionBarActivity {
                     this.module_class = HybridsActivity.class;
                     break;
                 case 5:
-                    this.module_class = FloristryActivity.class;
+                    this.module_class = StylesActivity.class;
                     break;
                 case 6:
                     this.module_class = SymbolismActivity.class;

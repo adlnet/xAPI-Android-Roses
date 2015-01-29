@@ -42,8 +42,8 @@
             android:label="@string/title_activity_hybrids" >
         </activity>
         <activity
-            android:name="org.adl.roses.FloristryActivity"
-            android:label="@string/title_activity_floristry" >
+            android:name=".StylesActivity"
+            android:label="@string/title_activity_styles" >
         </activity>
         <activity
             android:name="org.adl.roses.SymbolismActivity"

@@ -40,36 +40,39 @@ public abstract class ContentActivity extends ActionBarActivity{
     private int _current_slide;
     private Agent _actor;
     private String _attempt;
+    private String _path;
+    private String _name;
+    private String _desc;
 
     protected void mOnCreate(Bundle savedInstanceState){
-        // Set the module ID and current slide
+        // Set the module ID, current slide and current actor
         setAndroidId(getIntent().getExtras().getInt(getString(R.string.intent_request_code)));
         setCurrentSlide(getIntent().getExtras().getInt(getString(R.string.intent_slide)));
         setActor();
+        // Be sure to set moduleId before setting path, name, and desc
+        setPath(getResources().getStringArray(R.array.modules_path)[getAndroidId()]);
+        setName(getResources().getStringArray(R.array.modules_name)[getAndroidId()]);
+        setDesc(getResources().getStringArray(R.array.modules_desc)[getAndroidId()]);
 
-        ModuleData md = setModuleData(getAndroidId(), false);
-        String path = md.path;
-        String name = md.name;
-        String desc = md.desc;
-
-        // Set or generate the attempt ID
+        // Try to get attemptID, if not there generate a new attempt
         String attemptId = getIntent().getExtras().getString(getString(R.string.intent_attempt), null);
         if (attemptId == null){
+            //Generate attempt
             generateAttempt();
-            // Get actor and send initialized statement and first slide statement
+            // Create init act and the attempt act
+            Activity init_act = createActivity(getString(R.string.app_activity_iri) + getPath(),
+                    getName(), getDesc(), getString(R.string.scorm_profile_activity_type_lesson_id));
 
-            Activity init_act = createActivity(getString(R.string.app_activity_iri) + path,
-                    name, desc, getString(R.string.scorm_profile_activity_type_lesson_id));
-
-            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path +"?attemptId=" + getCurrentAttempt(),
-                    "Attempt for " + name,
-                    "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
+            Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + getPath() +"?attemptId=" + getCurrentAttempt(),
+                    "Attempt for " + getName(),
+                    "Attempt for " + getDesc(), getString(R.string.scorm_profile_activity_type_attempt_id));
 
             Context init_con = createContext(attempt_act, null, null, true);
             // send initialize statement
-            MyStatementParams init_params = new MyStatementParams(getActor(), Verbs.initialized(), init_act, init_con);
             WriteStatementTask init_stmt_task = new WriteStatementTask();
-            init_stmt_task.execute(init_params);
+            Statement stmt = new Statement(getActor(), Verbs.initialized(), init_act);
+            stmt.setContext(init_con);
+            init_stmt_task.execute(stmt);
 
             // Update activity state
             // Get existing activity state by using SCORM activity state IRI as stateID
@@ -116,6 +119,7 @@ public abstract class ContentActivity extends ActionBarActivity{
             write_updated_as_task.execute(write_updated_as_params);
         }
         else{
+            // If resuming the module, set the current attemptID
             setCurrentAttempt(attemptId);
         }
 
@@ -178,9 +182,15 @@ public abstract class ContentActivity extends ActionBarActivity{
                 getIntent().getExtras().getString(getString(R.string.intent_actor_email)));
     }
     protected Agent getActor(){return this._actor;}
+    protected void setName(String n){this._name = n; }
+    protected String getName(){return this._name;}
+    protected void setPath(String p){this._path = p; }
+    protected String getPath(){return this._path;}
+    protected void setDesc(String d){this._desc = d; }
+    protected String getDesc(){return this._desc;}
 
     protected void previousSlide(){
-        // If first opening the module - don't send extra read statement for current slide
+        // Send read statement then set the prev slide and replace fragment
         sendSlideChangeStatement();
         switch (getCurrentSlide()){
             case 0:
@@ -196,7 +206,7 @@ public abstract class ContentActivity extends ActionBarActivity{
         replaceFragment();
     }
     protected void nextSlide(){
-        // If first opening the module - don't send extra read statement for current slide
+        // Send read statement then set the next slide and replace fragment
         sendSlideChangeStatement();
         switch (getCurrentSlide()){
             case 0:
@@ -219,36 +229,37 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
 
     protected void sendSlideChangeStatement(){
-        ModuleData md = setModuleData(getAndroidId(), false);
-        String path = md.path;
-        String name = md.name;
-        String desc = md.desc;
-
-        Activity lesson_attempt_act = createActivity(getString(R.string.app_activity_iri) + path, name, desc,
+        // Create parent module activity
+        Activity lesson_attempt_act = createActivity(getString(R.string.app_activity_iri) + getPath(), getName(), getDesc(),
                 getString(R.string.scorm_profile_activity_type_lesson_id));
 
-        Activity object_act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
-                getCurrentSlide(), name + " - Slide " + (getCurrentSlide() + 1),
-                desc + " - Slide " + (getCurrentSlide() + 1),
+        // Create module activity that will be object of the statement
+        Activity object_act = createActivity(getString(R.string.app_activity_iri) + getPath() + "#" +
+                getCurrentSlide(), getName() + " - Slide " + (getCurrentSlide() + 1),
+                getDesc() + " - Slide " + (getCurrentSlide() + 1),
                 getString(R.string.scorm_profile_activity_type_lesson_id));
 
-        Activity slide_attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "#" +
+        // Create the slide attempt activity
+        Activity slide_attempt_act = createActivity(getString(R.string.app_activity_iri) + getPath() + "#" +
                 getCurrentSlide() + "?attemptId=" + getCurrentAttempt(),
-                "Attempt for " + name + " - Slide " + (getCurrentSlide() + 1),
-                "Attempt for " + desc + " - Slide " + (getCurrentSlide() + 1),
+                "Attempt for " + getName() + " - Slide " + (getCurrentSlide() + 1),
+                "Attempt for " + getDesc() + " - Slide " + (getCurrentSlide() + 1),
                 getString(R.string.scorm_profile_activity_type_attempt_id));
 
-        Activity parent_attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + getCurrentAttempt(),
-                "Attempt for " + name, "Attempt for " + desc,
+        // Create the module attempt activity
+        Activity parent_attempt_act = createActivity(getString(R.string.app_activity_iri) + getPath() + "?attemptId=" + getCurrentAttempt(),
+                "Attempt for " + getName(), "Attempt for " + getDesc(),
                 getString(R.string.scorm_profile_activity_type_attempt_id));
 
+        // Create context and verb for the statement, then create statement and send it
         Context slide_con = createContext(lesson_attempt_act, slide_attempt_act, parent_attempt_act, false);
         HashMap<String, String> verb_lang = new HashMap<String, String>();
         verb_lang.put("en-US", "read");
         Verb verb = new Verb(getString(R.string.read_verb), verb_lang);
-        MyStatementParams slide_init_params = new MyStatementParams(getActor(), verb, object_act, slide_con);
         WriteStatementTask slide_init_stmt_task = new WriteStatementTask();
-        slide_init_stmt_task.execute(slide_init_params);
+        Statement stmt = new Statement(getActor(), verb, object_act);
+        stmt.setContext(slide_con);
+        slide_init_stmt_task.execute(stmt);
     }
 
     protected Context createContext(Activity lesson_attempt_act, Activity slide_attempt_act, Activity parent_attempt_act, boolean init){
@@ -262,14 +273,17 @@ public abstract class ContentActivity extends ActionBarActivity{
                 getString(R.string.scorm_profile_activity_type_course_id)));
         con_act_list.add(lesson_attempt_act);
 
-        // If the statement isn't init then add the parent activity to the context
+        // If the statement isn't init then add the slide attempt activity
+        /// and parent attempt activity
         if (!init){
             con_act_list.add(slide_attempt_act);
             ArrayList<Activity> parent_act_list = new ArrayList<Activity>();
             parent_act_list.add(parent_attempt_act);
             con_acts.setParent(parent_act_list);
         }
+
         ArrayList<Activity> cat_act_list = new ArrayList<Activity>();
+        // Add category activity per the SCORM profile
         cat_act_list.add(new Activity(getString(R.string.scorm_profile_activity_category_id)));
         con_acts.setCategory(cat_act_list);
         con_acts.setGrouping(con_act_list);
@@ -286,18 +300,6 @@ public abstract class ContentActivity extends ActionBarActivity{
         act_def.setType(type_id);
         act.setDefinition(act_def);
         return act;
-    }
-
-    private ModuleData setModuleData(int moduleId, Boolean mc){
-        ModuleData returnData = new ModuleData();
-        returnData.setPath(getResources().getStringArray(R.array.modules_path)[moduleId]);
-        returnData.setName(getResources().getStringArray(R.array.modules_name)[moduleId]);
-        returnData.setDesc(getResources().getStringArray(R.array.modules_desc)[moduleId]);
-
-        if (mc){
-            returnData.setModule_class(moduleId);
-        }
-        return returnData;
     }
 
     @Override
@@ -329,8 +331,11 @@ public abstract class ContentActivity extends ActionBarActivity{
     }
     protected void returnResult(boolean suspended){
         Intent returnIntent = new Intent();
+        // Include the current attemptId and slideId to send back to
+        // the main activity
         returnIntent.putExtra(getString(R.string.intent_attempt), getCurrentAttempt());
         returnIntent.putExtra(getString(R.string.intent_slide), getCurrentSlide());
+        // If suspended button is pushed, it will send RESULT_CANCELLED
         if (suspended){
             setResult(RESULT_CANCELED, returnIntent);
         }
@@ -340,58 +345,38 @@ public abstract class ContentActivity extends ActionBarActivity{
         finish();
     }
 
-    protected class WriteStatementTask extends AsyncTask<MyStatementParams, Void, Pair<Boolean, String>> {
-        protected Pair<Boolean, String> doInBackground(MyStatementParams... params){
-            Statement stmt = new Statement();
-            stmt.setActor(params[0].ag);
-            stmt.setVerb(params[0].v);
-            stmt.setObject(params[0].a);
-            stmt.setContext(params[0].c);
-
+    // Inner class to write statements to the LRS - returns boolean success and string result
+    protected class WriteStatementTask extends AsyncTask<Statement, Void, Pair<Boolean, String>> {
+        protected Pair<Boolean, String> doInBackground(Statement... params){
             boolean success = true;
             String content;
+            // Try to send statement, if error set success and content to error message
             try{
                 StatementClient client = new StatementClient(getString(R.string.lrs_endpoint),
                         getString(R.string.lrs_user), getString(R.string.lrs_password));
-                content = client.publishStatement(stmt);
+                content = client.publishStatement(params[0]);
             }catch(Exception ex){
                 success = false;
                 content = ex.getLocalizedMessage();
             }
-
             return new Pair<Boolean, String>(success, content);
         }
 
+        // Called after doInBackground for updating UI
         protected void onPostExecute(Pair<Boolean, String> p){
             if (!p.first){
+                // Send toast message with error
                 Toast.makeText(getApplicationContext(), getString(R.string.statement_write_error) + p.second,
                         Toast.LENGTH_LONG).show();
             }
         }
     }
-    protected class MyStatementParams{
-        Agent ag;
-        Verb v;
-        Activity a;
-        Context c;
-        String aID;
-
-        MyStatementParams(Agent ag, Verb v, Activity a, Context c){
-            this.ag = ag;
-            this.v = v;
-            this.a = a;
-            this.c = c;
-        }
-        MyStatementParams(Agent ag, Verb v, String a){
-            this.ag = ag;
-            this.v = v;
-            this.aID = a;
-        }
-    }
+    // Inner class to get activity states from the LRS - returns activity state data
     protected class GetActivityStateTask extends AsyncTask<MyActivityStateParams, Void, MyReturnActivityStateData>{
         protected MyReturnActivityStateData doInBackground(MyActivityStateParams... params){
             JsonObject state;
             boolean success = true;
+            // Try to get the activity state
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
@@ -405,16 +390,20 @@ public abstract class ContentActivity extends ActionBarActivity{
             return new MyReturnActivityStateData(success, state);
         }
 
+        // Called after doInBackground for UI
         protected void onPostExecute(MyReturnActivityStateData asd){
             if (!asd.success){
+                // Return toast with error message
                 Toast.makeText(getApplicationContext(), getString(R.string.get_as_error), Toast.LENGTH_LONG).show();
             }
         }
     }
+    // Inner class to write activity state to the LRS - returns boolean success and string result
     protected class WriteActivityStateTask extends AsyncTask<MyActivityStateParams, Void, Pair<Boolean, String>>{
         protected Pair<Boolean, String> doInBackground(MyActivityStateParams... params){
             boolean success;
             String content;
+            // Try to write the activity state
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
@@ -429,13 +418,16 @@ public abstract class ContentActivity extends ActionBarActivity{
             return new Pair<Boolean, String>(success, content);
         }
 
+        // Called after doInBackground for UI
         protected void onPostExecute(Pair<Boolean, String> p){
             if (!p.first){
+                // Return toast with error message
                 Toast.makeText(getApplicationContext(), getString(R.string.write_as_error) + p.second,
                         Toast.LENGTH_LONG).show();
             }
         }
     }
+    // Inner class to pass activity state data to tasks
     protected class MyActivityStateParams{
         Agent a;
         JsonObject state;
@@ -451,6 +443,7 @@ public abstract class ContentActivity extends ActionBarActivity{
             this.stId = stID;
         }
     }
+    // inner class to return activity state data back to activity
     protected class MyReturnActivityStateData{
         boolean success;
         JsonObject state;
@@ -458,48 +451,6 @@ public abstract class ContentActivity extends ActionBarActivity{
         MyReturnActivityStateData(boolean s, JsonObject state){
             this.success = s;
             this.state = state;
-        }
-    }
-    private class ModuleData{
-        String path;
-        String name;
-        String desc;
-        Class module_class;
-
-        ModuleData(){}
-        public void setPath(String path) {
-            this.path = path;
-        }
-        public void setName(String name) {
-            this.name = name;
-        }
-        public void setDesc(String desc) {
-            this.desc = desc;
-        }
-        public void setModule_class(int module_class) {
-            switch(module_class){
-                case 0:
-                    this.module_class = RoseActivity.class;
-                    break;
-                case 1:
-                    this.module_class = PruningActivity.class;
-                    break;
-                case 2:
-                    this.module_class = DeadHeadingActivity.class;
-                    break;
-                case 3:
-                    this.module_class = ShearingActivity.class;
-                    break;
-                case 4:
-                    this.module_class = HybridsActivity.class;
-                    break;
-                case 5:
-                    this.module_class = FloristryActivity.class;
-                    break;
-                case 6:
-                    this.module_class = SymbolismActivity.class;
-                    break;
-            }
         }
     }
 }

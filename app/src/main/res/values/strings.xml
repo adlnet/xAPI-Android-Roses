@@ -34,7 +34,7 @@
     <string name="title_activity_dead_heading">DeadHeadingActivity</string>
     <string name="title_activity_shearing">ShearingActivity</string>
     <string name="title_activity_hybrids">HybridsActivity</string>
-    <string name="title_activity_floristry">FloristryActivity</string>
+    <string name="title_activity_styles">StylesActivity</string>
     <string name="title_activity_symbolism">SymbolismActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
