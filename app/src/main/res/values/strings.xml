@@ -8,15 +8,13 @@
     <string name="app_activity_description">Roses Job Aid</string>
 
     <string name="lrs_endpoint">https://lrs.adlnet.gov/xapi/</string>
-    <string name="lrs_user">lou</string>
-    <string name="lrs_password">password</string>
+    <string name="lrs_user">xAPIRoses</string>
+    <string name="lrs_password">password2</string>
 
     <string name="preferences_screen_title">Create xAPI Actor Account</string>
     <string name="preferences_key">org.adl.roses.preferences</string>
     <string name="preferences_name_key">name</string>
     <string name="preferences_email_key">email</string>
-    <string name="preferences_bookmark_key">bookmark</string>
-    <string name="preference_send_init">send_init</string>
     <string name="action_settings">Settings</string>
     <string name="dialog_title">Continue from last bookmark?</string>
     <string name="default_name">Anonymous</string>
@@ -38,7 +36,6 @@
     <string name="title_activity_hybrids">HybridsActivity</string>
     <string name="title_activity_styles">StylesActivity</string>
     <string name="title_activity_symbolism">SymbolismActivity</string>
-    <string name="title_activity_settings">SettingsActivity</string>
 
     <string name="retrieve_attempts_error">Could not retrieve attempts from state: </string>
     <string name="retrieve_as_attempt_error">Could not read activity state attempt data: </string>
