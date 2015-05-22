@@ -20,7 +20,7 @@ target/
 
 # IntelliJ additions
 *.iml
-.idea/
+.idea
 *.ipr
 *.iws
 
@@ -46,7 +46,7 @@ Thumbs.db
 
 # Android Studio
 .idea
-#*.gradle
+*.gradle
 build/
 bin/
 .gradle/
@@ -57,3 +57,7 @@ gradle/
 #gradlew.bat
 
 *.pro
+proguard/
+*.log
+.classpath
+.project
