@@ -25,6 +25,7 @@ import gov.adlnet.xapi.client.ActivityClient;
 import gov.adlnet.xapi.client.StatementClient;
 import gov.adlnet.xapi.model.Activity;
 import gov.adlnet.xapi.model.ActivityDefinition;
+import gov.adlnet.xapi.model.ActivityState;
 import gov.adlnet.xapi.model.Agent;
 import gov.adlnet.xapi.model.Context;
 import gov.adlnet.xapi.model.ContextActivities;
@@ -32,7 +33,7 @@ import gov.adlnet.xapi.model.Statement;
 import gov.adlnet.xapi.model.Verb;
 import gov.adlnet.xapi.model.Verbs;
 
-public abstract class ContentActivity extends ActionBarActivity{
+public abstract class ContentActivity extends android.app.Activity{
     private int _android_id;
     private int _current_slide;
     private Agent _actor;
@@ -358,7 +359,7 @@ public abstract class ContentActivity extends ActionBarActivity{
             try{
                 StatementClient client = new StatementClient(getString(R.string.lrs_endpoint),
                         getString(R.string.lrs_user), getString(R.string.lrs_password));
-                content = client.publishStatement(params[0]);
+                content = client.postStatement(params[0]);
             }catch(Exception ex){
                 success = false;
                 content = ex.getLocalizedMessage();
@@ -385,7 +386,11 @@ public abstract class ContentActivity extends ActionBarActivity{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
                 // This will retrieve an array of states (should only be one in the array)
-                state = ac.getActivityState(params[0].actID, params[0].a, null, params[0].stId);
+                ActivityState as = new ActivityState();
+                as.setActivityId(params[0].actID);
+                as.setAgent(params[0].a);
+                as.setStateId(params[0].stId);
+                state = ac.getActivityState(as);
             }
             catch (Exception ex){
                 success = false;
@@ -411,8 +416,12 @@ public abstract class ContentActivity extends ActionBarActivity{
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
-                success = ac.postActivityState(params[0].actID, params[0].a, null,
-                        params[0].stId, params[0].state);
+                ActivityState as = new ActivityState();
+                as.setActivityId(params[0].actID);
+                as.setAgent(params[0].a);
+                as.setStateId(params[0].stId);
+                as.setState(params[0].state);
+                success = ac.postActivityState(as);
                 content = "";
             }
             catch (Exception ex){

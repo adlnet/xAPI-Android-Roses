@@ -4,9 +4,6 @@ android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
-    dexOptions {
-        preDexLibraries = false
-    }
     defaultConfig {
         applicationId "org.adl.roses"
         minSdkVersion 11
@@ -26,8 +23,4 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.android.support:support-v4:22.1.1'
-    compile files('libs/gson-2.2.4.jar') {
-            exclude group:'com.google.android', module:'support-v4'
-    }
-    compile files('libs/xapi-0.1.2.jar')
 }
