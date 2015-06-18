@@ -5,7 +5,6 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -386,10 +385,7 @@ public abstract class ContentActivity extends android.app.Activity{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
                 // This will retrieve an array of states (should only be one in the array)
-                ActivityState as = new ActivityState();
-                as.setActivityId(params[0].actID);
-                as.setAgent(params[0].a);
-                as.setStateId(params[0].stId);
+                ActivityState as = new ActivityState(params[0].actID, params[0].stId, params[0].a);
                 state = ac.getActivityState(as);
             }
             catch (Exception ex){
@@ -416,10 +412,7 @@ public abstract class ContentActivity extends android.app.Activity{
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
-                ActivityState as = new ActivityState();
-                as.setActivityId(params[0].actID);
-                as.setAgent(params[0].a);
-                as.setStateId(params[0].stId);
+                ActivityState as = new ActivityState(params[0].actID, params[0].stId, params[0].a);
                 as.setState(params[0].state);
                 success = ac.postActivityState(as);
                 content = "";

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -206,14 +205,14 @@ public class MainActivity extends android.app.Activity{
         builder.setTitle(getString(R.string.dialog_title))
                 .setMessage(module_name + " Slide - " + (slide + 1));
 
-        builder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener(){
-            public void onClick(DialogInterface dialog, int id){
+        builder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
                 sendResumeStatements(moduleId, attemptId, slide, actor);
                 dialog.dismiss();
             }
         });
-        builder.setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener(){
-            public void onClick(DialogInterface dialog, int id){
+        builder.setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
                 dialog.cancel();
             }
         });
@@ -387,9 +386,9 @@ public class MainActivity extends android.app.Activity{
             launchSettings();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
     @Override
     public void startActivityForResult(Intent intent, int requestCode){
         // Whenever activity is started, include the moduleId
@@ -548,10 +547,7 @@ public class MainActivity extends android.app.Activity{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
                 // This will retrieve an array of states (should only be one in the array)
-                ActivityState as = new ActivityState();
-                as.setActivityId(params[0].actID);
-                as.setAgent(params[0].a);
-                as.setStateId(params[0].stId);
+                ActivityState as = new ActivityState(params[0].actID, params[0].stId, params[0].a);
                 state = ac.getActivityState(as);
             }
             catch (Exception ex){
