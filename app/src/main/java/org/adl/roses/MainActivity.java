@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,14 +30,16 @@ import gov.adlnet.xapi.client.ActivityClient;
 import gov.adlnet.xapi.client.StatementClient;
 import gov.adlnet.xapi.model.Activity;
 import gov.adlnet.xapi.model.ActivityDefinition;
+import gov.adlnet.xapi.model.ActivityState;
 import gov.adlnet.xapi.model.Agent;
 import gov.adlnet.xapi.model.Context;
 import gov.adlnet.xapi.model.ContextActivities;
+import gov.adlnet.xapi.model.Result;
 import gov.adlnet.xapi.model.Statement;
 import gov.adlnet.xapi.model.StatementResult;
 import gov.adlnet.xapi.model.Verbs;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends android.app.Activity{
     private String _actor_name;
     private String _actor_email;
 
@@ -204,14 +205,14 @@ public class MainActivity extends ActionBarActivity {
         builder.setTitle(getString(R.string.dialog_title))
                 .setMessage(module_name + " Slide - " + (slide + 1));
 
-        builder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener(){
-            public void onClick(DialogInterface dialog, int id){
+        builder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
                 sendResumeStatements(moduleId, attemptId, slide, actor);
                 dialog.dismiss();
             }
         });
-        builder.setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener(){
-            public void onClick(DialogInterface dialog, int id){
+        builder.setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
                 dialog.cancel();
             }
         });
@@ -306,10 +307,14 @@ public class MainActivity extends ActionBarActivity {
             Activity attempt_act = createActivity(getString(R.string.app_activity_iri) + path + "?attemptId=" + attemptId,
                     "Attempt for " + name, "Attempt for " + desc, getString(R.string.scorm_profile_activity_type_attempt_id));
             Context con = createContext(attempt_act);
+            Result result = new Result();
+            result.setCompletion(true);
+            result.setSuccess(true);
             // returned result from launched activity, send terminated
             WriteStatementTask terminate_stmt_task = new WriteStatementTask();
             Statement stmt = new Statement(actor, Verbs.terminated(), mod_act);
             stmt.setContext(con);
+            stmt.setResult(result);
             terminate_stmt_task.execute(stmt);
         }
     }
@@ -381,9 +386,9 @@ public class MainActivity extends ActionBarActivity {
             launchSettings();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
     @Override
     public void startActivityForResult(Intent intent, int requestCode){
         // Whenever activity is started, include the moduleId
@@ -471,7 +476,7 @@ public class MainActivity extends ActionBarActivity {
             try{
                 StatementClient client = new StatementClient(getString(R.string.lrs_endpoint),
                         getString(R.string.lrs_user), getString(R.string.lrs_password));
-                content = client.publishStatement(params[0]);
+                content = client.postStatement(params[0]);
             }catch(Exception ex){
                 success = false;
                 content = ex.getLocalizedMessage();
@@ -542,7 +547,8 @@ public class MainActivity extends ActionBarActivity {
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
                 // This will retrieve an array of states (should only be one in the array)
-                state = ac.getActivityState(params[0].actID, params[0].a, null, params[0].stId);
+                ActivityState as = new ActivityState(params[0].actID, params[0].stId, params[0].a);
+                state = ac.getActivityState(as);
             }
             catch (Exception ex){
                 success = false;
@@ -568,8 +574,9 @@ public class MainActivity extends ActionBarActivity {
             try{
                 ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
                         getString(R.string.lrs_password));
-                success = ac.postActivityState(params[0].actID, params[0].a, null,
-                        params[0].stId, params[0].state);
+                ActivityState as = new ActivityState(params[0].actID, params[0].stId, params[0].a);
+                as.setState(params[0].state);
+                success = ac.postActivityState(as);
                 content = "";
             }
             catch (Exception ex){

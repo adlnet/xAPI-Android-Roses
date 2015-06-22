@@ -18,7 +18,7 @@
     <string name="action_settings">Settings</string>
     <string name="dialog_title">Continue from last bookmark?</string>
     <string name="default_name">Anonymous</string>
-    <string name="default_email">anonymous@anon.com</string>
+    <string name="default_email">mailto:anonymous@anon.com</string>
     <string name="read_verb">http://example.com/verbs/read</string>
 
     <string name="suspend_button">Suspend</string>
