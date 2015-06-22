@@ -6,3 +6,5 @@ This app follows the ADL SCORM Profile for xAPI enabled learning content that al
 When you first open the app it will ask you to provide a name and email; this will create an actor for the statements. Once you are signed in, the app will look for any previous attempts via xAPI's activity state API. If found, it will ask you if you'd like to continue from the point you last suspended the module.
 
 Each module has three slides that the user can maneuver through using the Prev/Next buttons. If you'd like to suspend the module just push the Suspend button.
+
+To begin developing and running the app, create a folder named `libs` and place it in the `src/` folder. After that download the latest jXAPI release (https://github.com/adlnet/jxapi/releases) and place the .jar file in the `libs/` folder. Build the project and you're ready to go.
