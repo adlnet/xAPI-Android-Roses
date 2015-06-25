@@ -257,7 +257,7 @@ public abstract class ContentActivity extends android.app.Activity{
 
         // Create context and verb for the statement, then create statement and send it
         Context slide_con = createContext(lesson_attempt_act, slide_attempt_act, parent_attempt_act, false);
-        HashMap<String, String> verb_lang = new HashMap<String, String>();
+        HashMap<String, String> verb_lang = new HashMap<>();
         verb_lang.put("en-US", "read");
         Verb verb = new Verb(getString(R.string.read_verb), verb_lang);
         WriteStatementTask slide_init_stmt_task = new WriteStatementTask();
@@ -270,23 +270,24 @@ public abstract class ContentActivity extends android.app.Activity{
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
 
-        ArrayList<Activity> con_act_list = new ArrayList<Activity>();
+        ArrayList<Activity> con_act_list = new ArrayList<>();
         // Add application activity
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
                 getString(R.string.app_activity_name), getString(R.string.app_activity_description),
                 getString(R.string.scorm_profile_activity_type_course_id)));
         con_act_list.add(lesson_attempt_act);
+        con_act_list.add(new Activity(getString(R.string.xapi_bootcamp_iri)));
 
         // If the statement isn't init then add the slide attempt activity
         /// and parent attempt activity
         if (!init){
             con_act_list.add(slide_attempt_act);
-            ArrayList<Activity> parent_act_list = new ArrayList<Activity>();
+            ArrayList<Activity> parent_act_list = new ArrayList<>();
             parent_act_list.add(parent_attempt_act);
             con_acts.setParent(parent_act_list);
         }
 
-        ArrayList<Activity> cat_act_list = new ArrayList<Activity>();
+        ArrayList<Activity> cat_act_list = new ArrayList<>();
         // Add category activity per the SCORM profile
         cat_act_list.add(new Activity(getString(R.string.scorm_profile_activity_category_id)));
         con_acts.setCategory(cat_act_list);
@@ -363,7 +364,7 @@ public abstract class ContentActivity extends android.app.Activity{
                 success = false;
                 content = ex.getLocalizedMessage();
             }
-            return new Pair<Boolean, String>(success, content);
+            return new Pair<>(success, content);
         }
 
         // Called after doInBackground for updating UI
@@ -421,7 +422,7 @@ public abstract class ContentActivity extends android.app.Activity{
                 success = false;
                 content = ex.getLocalizedMessage();
             }
-            return new Pair<Boolean, String>(success, content);
+            return new Pair<>(success, content);
         }
 
         // Called after doInBackground for UI

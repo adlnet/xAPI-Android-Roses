@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -67,9 +68,9 @@ public class MainActivity extends android.app.Activity{
         ListView mainListView = (ListView)findViewById(R.id.list);
         // get the array resource
         String[] modules = getResources().getStringArray(R.array.modules_name);
-        ArrayList<String> moduleList = new ArrayList<String>();
+        ArrayList<String> moduleList = new ArrayList<>();
         moduleList.addAll(Arrays.asList(modules));
-        ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, R.layout.simplerow, moduleList);
+        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, R.layout.simplerow, moduleList);
         mainListView.setAdapter(listAdapter);
         // Set the onclick listener to launch the module and send statements
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -342,7 +343,7 @@ public class MainActivity extends android.app.Activity{
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
 
-        ArrayList<Activity> con_act_list = new ArrayList<Activity>();
+        ArrayList<Activity> con_act_list = new ArrayList<>();
         // Include app activity
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
                 getString(R.string.app_activity_name), getString(R.string.app_activity_description),
@@ -350,8 +351,9 @@ public class MainActivity extends android.app.Activity{
         con_act_list.add(attempt_act);
 
         con_acts.setGrouping(con_act_list);
-        ArrayList<Activity> cat_act_list = new ArrayList<Activity>();
+        ArrayList<Activity> cat_act_list = new ArrayList<>();
         cat_act_list.add(new Activity(getString(R.string.scorm_profile_activity_category_id)));
+        cat_act_list.add(new Activity(getString(R.string.xapi_bootcamp_iri)));
         con_acts.setCategory(cat_act_list);
         con.setContextActivities(con_acts);
         return con;
@@ -419,8 +421,9 @@ public class MainActivity extends android.app.Activity{
     private void launchSettings(){
         // build the view and inflate
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        ViewGroup parent = (ViewGroup) findViewById(R.id.main_layout);
         final LayoutInflater inflater = this.getLayoutInflater();
-        final View settings = inflater.inflate(R.layout.dialog_actor, null);
+        final View settings = inflater.inflate(R.layout.dialog_actor, parent, false);
 
         // get any saved data
         SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
@@ -482,7 +485,7 @@ public class MainActivity extends android.app.Activity{
                 content = ex.getLocalizedMessage();
             }
 
-            return new Pair<Boolean, String>(success, content);
+            return new Pair<>(success, content);
         }
 
         // Called after doInBackground for UI
@@ -583,7 +586,7 @@ public class MainActivity extends android.app.Activity{
                 success = false;
                 content = ex.getLocalizedMessage();
             }
-            return new Pair<Boolean, String>(success, content);
+            return new Pair<>(success, content);
         }
 
         protected void onPostExecute(Pair<Boolean, String> p){
@@ -594,7 +597,7 @@ public class MainActivity extends android.app.Activity{
         }
     }
     // Inner class to send activity state data to task
-    protected class MyActivityStateParams{
+    private class MyActivityStateParams{
         final Agent a;
         final JsonObject state;
         final String actID;
@@ -618,7 +621,7 @@ public class MainActivity extends android.app.Activity{
         }
     }
     // Inner class to hold module data for statements and activity states
-    protected class ModuleData{
+    private class ModuleData{
         String path;
         String name;
         String desc;
