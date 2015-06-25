@@ -353,6 +353,7 @@ public class MainActivity extends android.app.Activity{
         con_acts.setGrouping(con_act_list);
         ArrayList<Activity> cat_act_list = new ArrayList<>();
         cat_act_list.add(new Activity(getString(R.string.scorm_profile_activity_category_id)));
+        cat_act_list.add(new Activity(getString(R.string.xapi_bootcamp_iri)));
         con_acts.setCategory(cat_act_list);
         con.setContextActivities(con_acts);
         return con;
