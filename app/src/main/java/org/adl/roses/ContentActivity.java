@@ -276,7 +276,6 @@ public abstract class ContentActivity extends android.app.Activity{
                 getString(R.string.app_activity_name), getString(R.string.app_activity_description),
                 getString(R.string.scorm_profile_activity_type_course_id)));
         con_act_list.add(lesson_attempt_act);
-        con_act_list.add(new Activity(getString(R.string.xapi_bootcamp_iri)));
 
         // If the statement isn't init then add the slide attempt activity
         /// and parent attempt activity
