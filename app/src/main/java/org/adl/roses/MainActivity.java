@@ -91,7 +91,7 @@ public class MainActivity extends android.app.Activity{
         Agent actor = new Agent(_actor_name, _actor_email);
 
         // Get activity state for app IRI as activityID and SCORM activity state IRI as stateID
-        // If there are attempts, they will be listed in an Attempts array
+        // If there are attempts, they will be listed in an attempts array
         MyActivityStateParams get_as_params = new MyActivityStateParams(actor, null, getString(R.string.scorm_profile_activity_state_id),
                 getString(R.string.app_activity_iri));
         GetActivityStateTask get_sus_as_task = new GetActivityStateTask();
@@ -116,7 +116,7 @@ public class MainActivity extends android.app.Activity{
         if (state != null){
             try{
                 // Get the attempts element from the state which will be an array itself
-                JsonArray attempts = state.get("Attempts").getAsJsonArray();
+                JsonArray attempts = state.get("attempts").getAsJsonArray();
                 if (attempts.size() > 0){
                     // Get the last attempt
                     bookmarkID = attempts.get(attempts.size() - 1).getAsString();
