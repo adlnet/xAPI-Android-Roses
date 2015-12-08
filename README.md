@@ -7,4 +7,4 @@ When you first open the app it will ask you to provide a name and email; this wi
 
 Each module has three slides that the user can maneuver through using the Prev/Next buttons. If you'd like to suspend the module just push the Suspend button.
 
-To begin developing and running the app, create a folder named `libs` and place it in the `src/` folder. After that download the latest jXAPI release (https://github.com/adlnet/jxapi/releases) and place the .jar file in the `libs/` folder. Build the project and you're ready to go.
+To begin developing and running the app, create a folder named `libs` and place it in the `src/` folder. After that download the latest jXAPI [release](https://search.maven.org/#search%7Cga%7C1%7Cjxapi) and place the jar-with-dependencies jar in the `libs/` folder. Build the project and you're ready to go.
