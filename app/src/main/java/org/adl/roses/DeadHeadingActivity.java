@@ -7,7 +7,7 @@ public class DeadHeadingActivity extends ContentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTitle(getString(R.string.mod_deadheading_name));
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dead_heading);
+        setContentView(R.layout.activity_body);
         mOnCreate(savedInstanceState);
     }
 }

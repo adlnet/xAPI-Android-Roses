@@ -8,7 +8,7 @@ public class HybridsActivity extends ContentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTitle(getString(R.string.mod_hybrids_name));
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_hybrids);
+        setContentView(R.layout.activity_body);
         mOnCreate(savedInstanceState);
     }
 }

@@ -8,7 +8,7 @@ public class ShearingActivity extends ContentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTitle(getString(R.string.mod_shearing_name));
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shearing);
+        setContentView(R.layout.activity_body);
         mOnCreate(savedInstanceState);
     }
 }

@@ -8,7 +8,7 @@ public class SymbolismActivity extends ContentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTitle(getString(R.string.mod_symbolism_name));
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_symbolism);
+        setContentView(R.layout.activity_body);
         mOnCreate(savedInstanceState);
     }
 }

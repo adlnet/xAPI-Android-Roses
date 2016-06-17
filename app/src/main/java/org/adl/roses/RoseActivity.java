@@ -7,7 +7,7 @@ public class RoseActivity extends ContentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTitle(getString(R.string.mod_what_name));
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rose);
+        setContentView(R.layout.activity_body);
         mOnCreate(savedInstanceState);
     }
 }

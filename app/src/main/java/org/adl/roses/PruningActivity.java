@@ -8,7 +8,7 @@ public class PruningActivity extends ContentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTitle(getString(R.string.mod_pruning_name));
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pruning);
+        setContentView(R.layout.activity_body);
         mOnCreate(savedInstanceState);
     }
 }

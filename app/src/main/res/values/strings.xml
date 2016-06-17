@@ -41,7 +41,7 @@
     <string name="retrieve_as_attempt_error">Could not read activity state attempt data: </string>
     <string name="statement_write_error">Write Statement Error: </string>
     <string name="statement_get_error">Get Statement Error: </string>
-    <string name="get_as_error">No activity state returned (could not exist yet)</string>
+    <string name="get_as_error">No activity state returned (May not exist yet)</string>
     <string name="write_as_error">Write State Error: </string>
     <string name="updating_as_error">Error with updating activity state: </string>
 
