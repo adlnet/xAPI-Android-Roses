@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+
+        <Button
+        android:id="@+id/prev"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/previous_button"
+            android:textColor="#FFFFFF"
+            android:background="#33B5E5"
+            />
+
+        <Button
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next_button"
+            android:textColor="#FFFFFF"
+            android:background="#33B5E5"
+            />
+
+        <Button
+            android:id="@+id/suspend"
+            android:layout_marginLeft="@dimen/suspend_button_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/suspend_button"
+            android:textColor="#FFFFFF"
+            android:background="#1395C5"
+            />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/img1"
+        android:src="@drawable/corner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        />
+</LinearLayout>
