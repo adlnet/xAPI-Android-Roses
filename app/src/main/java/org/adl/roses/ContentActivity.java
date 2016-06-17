@@ -98,7 +98,7 @@ public abstract class ContentActivity extends android.app.Activity{
             if (act_state != null){
                 try{
                     // Get the attempts element from the state
-                    attempts = act_state.get("Attempts").getAsJsonArray();
+                    attempts = act_state.get("attempts").getAsJsonArray();
                 }
                 catch (Exception ex){
                     Toast.makeText(getApplicationContext(), getString(R.string.updating_as_error) + ex.getMessage(),
@@ -112,7 +112,7 @@ public abstract class ContentActivity extends android.app.Activity{
             attempts.add(element);
 
             JsonObject updated_state = new JsonObject();
-            updated_state.add("Attempts", attempts);
+            updated_state.add("attempts", attempts);
 
             // Write attempt state with updated attempts array
             // Write to attempt state that has attemptID as registration, SCORM activity state IRI
@@ -276,7 +276,6 @@ public abstract class ContentActivity extends android.app.Activity{
                 getString(R.string.app_activity_name), getString(R.string.app_activity_description),
                 getString(R.string.scorm_profile_activity_type_course_id)));
         con_act_list.add(lesson_attempt_act);
-        con_act_list.add(new Activity(getString(R.string.xapi_bootcamp_iri)));
 
         // If the statement isn't init then add the slide attempt activity
         /// and parent attempt activity

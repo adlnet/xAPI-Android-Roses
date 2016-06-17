@@ -7,8 +7,6 @@
     <string name="app_activity_name">Roses Job Aid xAPI Example</string>
     <string name="app_activity_description">Roses Job Aid</string>
 
-    <string name="xapi_bootcamp_iri">http://adlnet.gov/event/2015/xapibootcamp</string>
-
     <string name="lrs_endpoint">https://lrs.adlnet.gov/xapi/</string>
     <string name="lrs_user">xAPIRoses</string>
     <string name="lrs_password">password2</string>
@@ -53,12 +51,12 @@
     <string name="intent_actor_email">actorEmail</string>
     <string name="intent_attempt">attemptId</string>
 
-    <string name="scorm_profile_activity_state_id">http://adlnet.gov/xapi/profile/scorm/activity-state</string>
-    <string name="scorm_profile_attempt_state_id">"http://adlnet.gov/xapi/profile/scorm/attempt-state</string>
+    <string name="scorm_profile_activity_state_id">https://w3id.org/xapi/scorm/activity-state</string>
+    <string name="scorm_profile_attempt_state_id">https://w3id.org/xapi/scorm/attempt-state</string>
     <string name="scorm_profile_activity_type_lesson_id">http://adlnet.gov/expapi/activities/lesson</string>
     <string name="scorm_profile_activity_type_course_id">http://adlnet.gov/expapi/activities/course</string>
     <string name="scorm_profile_activity_type_attempt_id">http://adlnet.gov/expapi/activities/attempt</string>
-    <string name="scorm_profile_activity_category_id">http://adlnet.gov/xapi/profile/scorm</string>
+    <string name="scorm_profile_activity_category_id">https://w3id.org/xapi/scorm</string>
 
     <string name="mod_what_path">/what</string>
     <string name="mod_what_name">What is a Rose?</string>
