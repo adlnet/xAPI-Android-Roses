@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,12 +24,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 import gov.adlnet.xapi.client.ActivityClient;
 import gov.adlnet.xapi.client.StatementClient;
+import gov.adlnet.xapi.model.Account;
 import gov.adlnet.xapi.model.Activity;
 import gov.adlnet.xapi.model.ActivityDefinition;
 import gov.adlnet.xapi.model.ActivityState;
@@ -40,9 +43,13 @@ import gov.adlnet.xapi.model.Statement;
 import gov.adlnet.xapi.model.StatementResult;
 import gov.adlnet.xapi.model.Verbs;
 
-public class MainActivity extends android.app.Activity{
+public class MainActivity extends android.app.Activity {
     private String _actor_name;
-    private String _actor_email;
+    private String _actor_account_name;
+    private String _actor_account_homepage;
+    private String _lrs_endpoint;
+    private String _lrs_username;
+    private String _lrs_password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +59,43 @@ public class MainActivity extends android.app.Activity{
         setContentView(R.layout.activity_main);
         // get attempt info and any store credentials, if none, pop settings
         SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
-        String tmpName = prefs.getString(getString(R.string.preferences_name_key), null);
-        String tmpEmail = prefs.getString(getString(R.string.preferences_email_key), null);
-        if(tmpName == null || tmpEmail == null)
-        {
-            launchSettings();
+        _actor_name =  prefs.getString(getString(R.string.preferences_name_key), getString(R.string.default_name));
+        _actor_account_name = prefs.getString(getString(R.string.preferences_account_name_key),  getString(R.string.default_account_name));
+        _actor_account_homepage = prefs.getString(getString(R.string.preferences_account_homepage_key), getString(R.string.default_account_homepage));
+        _lrs_endpoint = prefs.getString(getString(R.string.preferences_lrs_endpoint_key), getString(R.string.default_lrs_endpoint));
+        _lrs_username = prefs.getString(getString(R.string.preferences_lrs_username_key), getString(R.string.default_lrs_username));
+
+        // Silly to do this but at least have to encode the password
+        String tmpPassword;
+        String tmpDefaultPassword = getString(R.string.default_lrs_password);
+        byte[] defaultData = null;
+        // Try encoding default string to bytes
+        try {
+            defaultData = tmpDefaultPassword.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            Toast.makeText(getApplicationContext(), "Error encoding default password",
+                                    Toast.LENGTH_LONG).show();
         }
-        else
-        {
-            _actor_email = tmpEmail;
-            _actor_name = tmpName;
+        // If encoding was successful, encode bytes to string
+        if (defaultData != null) {
+            tmpDefaultPassword = Base64.encodeToString(defaultData, Base64.DEFAULT);
+        }
+
+        // See if there is an existing password, it should be an encoded string
+        String tmpExistingPassword = prefs.getString(getString(R.string.preferences_lrs_password_key), null);
+        // If there was no existing password, just set it to the encoded default password
+        if (tmpExistingPassword == null){
+            tmpPassword = tmpDefaultPassword;
+        } else {
+            tmpPassword = tmpExistingPassword;
+        }
+
+        byte[] tmpBytes = Base64.decode(tmpPassword, Base64.DEFAULT);
+        try {
+            _lrs_password = new String(tmpBytes, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            Toast.makeText(getApplicationContext(), "Error decoding last set password, please fix",
+                    Toast.LENGTH_LONG).show();
         }
 
         // setup the list of content options
@@ -86,14 +120,14 @@ public class MainActivity extends android.app.Activity{
     }
 
     private void getBookmarkFromActivityState() {
-        // Make sure to set actor name and email if not already before checking activity state
-        checkActor();
-        Agent actor = new Agent(_actor_name, _actor_email);
+        Account acct = new Account(_actor_account_name, _actor_account_homepage);
+        Agent actor = new Agent(_actor_name, acct);
 
         // Get activity state for app IRI as activityID and SCORM activity state IRI as stateID
         // If there are attempts, they will be listed in an attempts array
         MyActivityStateParams get_as_params = new MyActivityStateParams(actor, null, getString(R.string.scorm_profile_activity_state_id),
                 getString(R.string.app_activity_iri));
+
         GetActivityStateTask get_sus_as_task = new GetActivityStateTask();
         MyReturnActivityStateData sus_result = null;
         try{
@@ -203,7 +237,7 @@ public class MainActivity extends android.app.Activity{
         // from bookmark
         String module_name = getResources().getStringArray(R.array.modules_name)[moduleId];
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.dialog_title))
+        builder.setTitle(getString(R.string.dialog_title_label))
                 .setMessage(module_name + " Slide - " + (slide + 1));
 
         builder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
@@ -256,14 +290,17 @@ public class MainActivity extends android.app.Activity{
         Intent resumeActivity = new Intent(MainActivity.this, module_class);
         resumeActivity.putExtra(getString(R.string.intent_slide), slide);
         resumeActivity.putExtra(getString(R.string.intent_actor_name), _actor_name);
-        resumeActivity.putExtra(getString(R.string.intent_actor_email), _actor_email);
+        resumeActivity.putExtra(getString(R.string.intent_actor_account_name), _actor_account_name);
+        resumeActivity.putExtra(getString(R.string.intent_actor_account_homepage), _actor_account_homepage);
+        resumeActivity.putExtra(getString(R.string.intent_lrs_endpoint), _lrs_endpoint);
+        resumeActivity.putExtra(getString(R.string.intent_lrs_username), _lrs_username);
+        resumeActivity.putExtra(getString(R.string.intent_lrs_password), _lrs_password);
         resumeActivity.putExtra(getString(R.string.intent_attempt), attemptId);
         startActivityForResult(resumeActivity, moduleId);
     }
     private void sendSuspendedStatements(int moduleId, String attemptId, int slide){
-        // Make sure actor name and email are set
-        checkActor();
-        Agent actor = new Agent(_actor_name, _actor_email);
+        Account acct = new Account(_actor_account_name, _actor_account_homepage);
+        Agent actor = new Agent(_actor_name, acct);
 
         // Get the module data from the moduleId
         ModuleData md = setModuleData(moduleId, false);
@@ -283,9 +320,8 @@ public class MainActivity extends android.app.Activity{
         updateActivityState(attempt_act, actor, moduleId, slide);
     }
     private void sendStatements(int moduleId, String attemptId, int slide, boolean isResult){
-        // Make sure to check actor email and name are set
-        checkActor();
-        Agent actor = new Agent(_actor_name, _actor_email);
+        Account acct = new Account(_actor_account_name, _actor_account_homepage);
+        Agent actor = new Agent(_actor_name, acct);
 
         // Get the module data from the moduleId
         ModuleData md = setModuleData(moduleId, true);
@@ -299,7 +335,11 @@ public class MainActivity extends android.app.Activity{
             Intent mod_intent = new Intent(MainActivity.this, module_class);
             mod_intent.putExtra(getString(R.string.intent_slide), slide);
             mod_intent.putExtra(getString(R.string.intent_actor_name), _actor_name);
-            mod_intent.putExtra(getString(R.string.intent_actor_email), _actor_email);
+            mod_intent.putExtra(getString(R.string.intent_actor_account_name), _actor_account_name);
+            mod_intent.putExtra(getString(R.string.intent_actor_account_homepage), _actor_account_homepage);
+            mod_intent.putExtra(getString(R.string.intent_lrs_endpoint), _lrs_endpoint);
+            mod_intent.putExtra(getString(R.string.intent_lrs_username), _lrs_username);
+            mod_intent.putExtra(getString(R.string.intent_lrs_password), _lrs_password);
             startActivityForResult(mod_intent, moduleId);
         }
         else{
@@ -332,13 +372,6 @@ public class MainActivity extends android.app.Activity{
         sus_as_task.execute(as_sus_params);
     }
 
-    private void checkActor(){
-        // Just make sure actor name and email aren't null if user doesn't put anything
-        if ((_actor_name == null || _actor_name.equals("")) || (_actor_email == null || _actor_email.equals(""))){
-            _actor_name = getString(R.string.default_name);
-            _actor_email = getString(R.string.default_email);
-        }
-    }
     private Context createContext(Activity attempt_act){
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
@@ -424,23 +457,17 @@ public class MainActivity extends android.app.Activity{
         final LayoutInflater inflater = this.getLayoutInflater();
         final View settings = inflater.inflate(R.layout.dialog_actor, parent, false);
 
-        // get any saved data
-        SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
-        String tmpName = prefs.getString(getString(R.string.preferences_name_key), null);
-        String tmpEmail = prefs.getString(getString(R.string.preferences_email_key), null);
-
-        // populate saved data in form
-        if (tmpName != null)
-        {
-            EditText ed_name = (EditText) settings.findViewById(R.id.name);
-            ed_name.setText(tmpName);
-        }
-        if (tmpEmail != null)
-        {
-            EditText ed_email = (EditText) settings.findViewById(R.id.email);
-            // All emails get 'mailto:' stored in front of them
-            ed_email.setText(tmpEmail.substring(7));
-        }
+        // private class vars are set before being called
+        EditText nameEdit = (EditText) settings.findViewById(R.id.name);
+        nameEdit.setText(_actor_name);
+        EditText acctNameEdit = (EditText) settings.findViewById(R.id.account_name);
+        acctNameEdit.setText(_actor_account_name);
+        EditText acctHomePageEdit = (EditText) settings.findViewById(R.id.account_homepage);
+        acctHomePageEdit.setText(_actor_account_homepage);
+        EditText endpointEdit = (EditText) settings.findViewById(R.id.lrs_endpoint);
+        endpointEdit.setText(_lrs_endpoint);
+        EditText userEdit = (EditText) settings.findViewById(R.id.lrs_username);
+        userEdit.setText(_lrs_username);
 
         // set props and positive button
         builder.setTitle(getString(R.string.preferences_screen_title));
@@ -449,16 +476,54 @@ public class MainActivity extends android.app.Activity{
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Dialog d = (Dialog) dialog;
-                        EditText ed1 = (EditText) d.findViewById(R.id.name);
-                        _actor_name = ed1.getText().toString();
+                        EditText nameEdit = (EditText) d.findViewById(R.id.name);
+                        EditText acctNameEdit = (EditText) d.findViewById(R.id.account_name);
+                        EditText acctHomepageEdit = (EditText) d.findViewById(R.id.account_homepage);
+                        EditText endpointEdit = (EditText) d.findViewById(R.id.lrs_endpoint);
+                        EditText userEdit = (EditText) d.findViewById(R.id.lrs_username);
+                        EditText passwordEdit = (EditText) d.findViewById(R.id.lrs_password);
 
-                        EditText ed2 = (EditText) d.findViewById(R.id.email);
-                        _actor_email = "mailto:" + ed2.getText().toString();
+                        SharedPreferences prefs = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
 
-                        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.preferences_key), MODE_PRIVATE).edit();
-                        editor.putString(getString(R.string.preferences_name_key), _actor_name);
-                        editor.putString(getString(R.string.preferences_email_key), _actor_email);
+                        editor.putString(getString(R.string.preferences_name_key), nameEdit.getText().toString().trim());
+                        editor.putString(getString(R.string.preferences_account_name_key), acctNameEdit.getText().toString().trim());
+                        editor.putString(getString(R.string.preferences_account_homepage_key), acctHomepageEdit.getText().toString().trim());
+                        editor.putString(getString(R.string.preferences_lrs_endpoint_key), endpointEdit.getText().toString().trim());
+                        editor.putString(getString(R.string.preferences_lrs_username_key), userEdit.getText().toString().trim());
+
+                        String passwordText = passwordEdit.getText().toString().trim();
+                        String passwordToSave;
+                        // If there is nothing there for the password keep the old password
+                        if (passwordText.length() > 0) {
+                            passwordToSave = passwordText;
+                        } else {
+                            passwordToSave = _lrs_password;
+                        }
+                        byte[] data = null;
+                        try {
+                            data = passwordToSave.getBytes("UTF-8");
+                        } catch (UnsupportedEncodingException ex) {
+                            Toast.makeText(getApplicationContext(), "Error encoding new password",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        passwordToSave = Base64.encodeToString(data, Base64.DEFAULT);
+                        editor.putString(getString(R.string.preferences_lrs_password_key), passwordToSave);
                         editor.apply();
+
+                        _actor_name =  prefs.getString(getString(R.string.preferences_name_key), null);
+                        _actor_account_name = prefs.getString(getString(R.string.preferences_account_name_key), null);
+                        _actor_account_homepage = prefs.getString(getString(R.string.preferences_account_homepage_key), null);
+                        _lrs_endpoint = prefs.getString(getString(R.string.preferences_lrs_endpoint_key), null);
+                        _lrs_username = prefs.getString(getString(R.string.preferences_lrs_username_key), null);
+
+                        byte[] tmpBytes = Base64.decode(prefs.getString(getString(R.string.preferences_lrs_password_key), null), Base64.DEFAULT);
+                        try {
+                            _lrs_password = new String(tmpBytes, "UTF-8");
+                        } catch (UnsupportedEncodingException ex) {
+                            Toast.makeText(getApplicationContext(), "Error decoding new password, please fix",
+                                    Toast.LENGTH_LONG).show();
+                        }
                         // Try getting bookmark from activity states
                         getBookmarkFromActivityState();
                     }
@@ -472,12 +537,15 @@ public class MainActivity extends android.app.Activity{
     // Inner class to send statements to the LRS - returns boolean success and string result
     private class WriteStatementTask extends AsyncTask<Statement, Void, Pair<Boolean, String>>{
         protected Pair<Boolean, String> doInBackground(Statement... params){
+            if(android.os.Debug.isDebuggerConnected()) {
+                android.os.Debug.waitForDebugger();
+            }
             boolean success = true;
             String content;
             // Try to send the statement
             try{
-                StatementClient client = new StatementClient(getString(R.string.lrs_endpoint),
-                        getString(R.string.lrs_user), getString(R.string.lrs_password));
+                StatementClient client = new StatementClient(_lrs_endpoint,
+                        _lrs_username, _lrs_password);
                 content = client.postStatement(params[0]);
             }catch(Exception ex){
                 success = false;
@@ -504,8 +572,8 @@ public class MainActivity extends android.app.Activity{
             String result;
             // Try to get statement data back
             try{
-                StatementClient sc = new StatementClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
-                        getString(R.string.lrs_password));
+                StatementClient sc = new StatementClient(_lrs_endpoint, _lrs_username,
+                        _lrs_password);
                 stmt_result = sc.filterByActivity(params[0].getId()).filterByActor(params[0].getActor())
                     .filterByVerb(params[0].getVerb()).includeRelatedActivities(true).getStatements();
                 Gson gson = new Gson();
@@ -546,8 +614,8 @@ public class MainActivity extends android.app.Activity{
             boolean success = true;
             // Try to get activity state
             try{
-                ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
-                        getString(R.string.lrs_password));
+                ActivityClient ac = new ActivityClient(_lrs_endpoint, _lrs_username,
+                        _lrs_password);
                 // This will retrieve an array of states (should only be one in the array)
                 ActivityState as = new ActivityState(params[0].actID, params[0].stId, params[0].a);
                 state = ac.getActivityState(as);
@@ -574,8 +642,8 @@ public class MainActivity extends android.app.Activity{
             String content;
             // Try to get activity state
             try{
-                ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
-                        getString(R.string.lrs_password));
+                ActivityClient ac = new ActivityClient(_lrs_endpoint, _lrs_username,
+                        _lrs_password);
                 ActivityState as = new ActivityState(params[0].actID, params[0].stId, params[0].a);
                 as.setState(params[0].state);
                 success = ac.postActivityState(as);

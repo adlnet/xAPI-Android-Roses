@@ -1,13 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
-
+    compileSdkVersion 23
+    buildToolsVersion '25.0.1'
     defaultConfig {
         applicationId "org.adl.roses"
         minSdkVersion 11
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 3
         versionName "1.2"
     }
@@ -17,11 +16,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/plexus/components.xml'
+    }
+    productFlavors {
+    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.android.support:support-v4:22.1.1'
-    compile files('lib/jxapi-1.0.2-jar-with-dependencies.jar')
+    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:support-v4:23.0.1'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'gov.adlnet:jxapi:1.0.3'
 }
