@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -97,7 +98,8 @@ public class MainActivity extends android.app.Activity {
             Toast.makeText(getApplicationContext(), "Error decoding last set password, please fix",
                     Toast.LENGTH_LONG).show();
         }
-
+        TextView endpointView = (TextView)findViewById((R.id.lrs_endpoint_view));
+        endpointView.setText(_lrs_endpoint);
         // setup the list of content options
         ListView mainListView = (ListView)findViewById(R.id.list);
         // get the array resource
@@ -524,6 +526,8 @@ public class MainActivity extends android.app.Activity {
                             Toast.makeText(getApplicationContext(), "Error decoding new password, please fix",
                                     Toast.LENGTH_LONG).show();
                         }
+                        TextView endpointView = (TextView)findViewById((R.id.lrs_endpoint_view));
+                        endpointView.setText(_lrs_endpoint);
                         // Try getting bookmark from activity states
                         getBookmarkFromActivityState();
                     }
