@@ -7,27 +7,33 @@
     <string name="app_activity_name">Roses Job Aid xAPI Example</string>
     <string name="app_activity_description">Roses Job Aid</string>
 
-    <string name="lrs_endpoint">https://lrs.adlnet.gov/xapi/</string>
-    <string name="lrs_user">xAPIRoses</string>
-    <string name="lrs_password">password2</string>
-
     <string name="preferences_screen_title">Create xAPI Actor Account</string>
     <string name="preferences_key">org.adl.roses.preferences</string>
-    <string name="preferences_name_key">name</string>
-    <string name="preferences_email_key">email</string>
-    <string name="action_settings">Settings</string>
-    <string name="dialog_title">Continue from last bookmark?</string>
-    <string name="default_name">Anonymous</string>
-    <string name="default_email">mailto:anonymous@anon.com</string>
-    <string name="read_verb">http://example.com/verbs/read</string>
+    <string name="preferences_name_key">actor_name</string>
+    <string name="preferences_account_name_key">account_name</string>
+    <string name="preferences_account_homepage_key">account_homepage</string>
+    <string name="preferences_lrs_endpoint_key">lrs_endpoint</string>
+    <string name="preferences_lrs_username_key">lrs_username</string>
+    <string name="preferences_lrs_password_key">lrs_password</string>
+
+    <string name="default_name">Anon</string>
+    <string name="default_account_name">anonymous</string>
+    <string name="default_account_homepage">http://lms.adlnet.gov</string>
+    <string name="default_lrs_endpoint">https://lrs.adlnet.gov/xapi/</string>
+    <string name="default_lrs_username">xAPIRoses</string>
+    <string name="default_lrs_password">password2</string>
 
     <string name="suspend_button">Suspend</string>
     <string name="previous_button">Prev</string>
     <string name="next_button">Next</string>
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
-    <string name="actor_name">Name</string>
-    <string name="actor_email">Email</string>
+
+    <string name="actor_name_label">Name</string>
+    <string name="actor_account_name_label">Account Name</string>
+    <string name="actor_account_homepage_label">Account Homepage</string>
+    <string name="action_settings_label">Settings</string>
+    <string name="dialog_title_label">Continue from last bookmark?</string>
 
     <string name="title_activity_rose">RoseActivity</string>
     <string name="title_activity_pruning">PruningActivity</string>
@@ -47,9 +53,13 @@
 
     <string name="intent_request_code">requestCode</string>
     <string name="intent_slide">slideId</string>
-    <string name="intent_actor_name">actorName</string>
-    <string name="intent_actor_email">actorEmail</string>
     <string name="intent_attempt">attemptId</string>
+    <string name="intent_actor_name">actorName</string>
+    <string name="intent_actor_account_name">actorAccountName</string>
+    <string name="intent_actor_account_homepage">actorAccountHomepage</string>
+    <string name="intent_lrs_endpoint">lrsEndpoint</string>
+    <string name="intent_lrs_username">lrsUsername</string>
+    <string name="intent_lrs_password">lrsPassword</string>
 
     <string name="scorm_profile_activity_state_id">https://w3id.org/xapi/scorm/activity-state</string>
     <string name="scorm_profile_attempt_state_id">https://w3id.org/xapi/scorm/attempt-state</string>
@@ -57,6 +67,8 @@
     <string name="scorm_profile_activity_type_course_id">http://adlnet.gov/expapi/activities/course</string>
     <string name="scorm_profile_activity_type_attempt_id">http://adlnet.gov/expapi/activities/attempt</string>
     <string name="scorm_profile_activity_category_id">https://w3id.org/xapi/scorm</string>
+
+    <string name="read_verb">http://adlnet.gov/expapi/verbs/completed</string>
 
     <string name="mod_what_path">/what</string>
     <string name="mod_what_name">What is a Rose?</string>

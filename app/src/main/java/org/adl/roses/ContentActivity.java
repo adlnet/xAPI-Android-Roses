@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import gov.adlnet.xapi.client.ActivityClient;
 import gov.adlnet.xapi.client.StatementClient;
+import gov.adlnet.xapi.model.Account;
 import gov.adlnet.xapi.model.Activity;
 import gov.adlnet.xapi.model.ActivityDefinition;
 import gov.adlnet.xapi.model.ActivityState;
@@ -40,12 +41,16 @@ public abstract class ContentActivity extends android.app.Activity{
     private String _path;
     private String _name;
     private String _desc;
+    private String _lrs_endpoint;
+    private String _lrs_username;
+    private String _lrs_password;
 
     protected void mOnCreate(Bundle savedInstanceState){
         // Set the module ID, current slide and current actor
         setAndroidId(getIntent().getExtras().getInt(getString(R.string.intent_request_code)));
         setCurrentSlide(getIntent().getExtras().getInt(getString(R.string.intent_slide)));
         setActor();
+        setEndpoint();
         // Be sure to set moduleId before setting path, name, and desc
         setPath(getResources().getStringArray(R.array.modules_path)[getAndroidId()]);
         setName(getResources().getStringArray(R.array.modules_name)[getAndroidId()]);
@@ -182,9 +187,17 @@ public abstract class ContentActivity extends android.app.Activity{
     protected void setCurrentAttempt(String att){this._attempt = att;}
     protected void generateAttempt(){this._attempt = UUID.randomUUID().toString();}
     protected void setActor(){
+        Account acct = new Account (getIntent().getStringExtra(getString(R.string.intent_actor_account_name)),
+                getIntent().getStringExtra(getString(R.string.intent_actor_account_homepage)));
         this._actor =  new Agent(getIntent().getStringExtra(getString(R.string.intent_actor_name)),
-                getIntent().getStringExtra(getString(R.string.intent_actor_email)));
+                acct);
     }
+    protected void setEndpoint(){
+        _lrs_endpoint = getIntent().getStringExtra(getString(R.string.intent_lrs_endpoint));
+        _lrs_username = getIntent().getStringExtra(getString(R.string.intent_lrs_username));
+        _lrs_password = getIntent().getStringExtra(getString(R.string.intent_lrs_password));
+    }
+
     protected Agent getActor(){return this._actor;}
     protected void setName(String n){this._name = n; }
     protected String getName(){return this._name;}
@@ -258,7 +271,7 @@ public abstract class ContentActivity extends android.app.Activity{
         // Create context and verb for the statement, then create statement and send it
         Context slide_con = createContext(lesson_attempt_act, slide_attempt_act, parent_attempt_act, false);
         HashMap<String, String> verb_lang = new HashMap<>();
-        verb_lang.put("en-US", "read");
+        verb_lang.put("en-US", "completed");
         Verb verb = new Verb(getString(R.string.read_verb), verb_lang);
         WriteStatementTask slide_init_stmt_task = new WriteStatementTask();
         Statement stmt = new Statement(getActor(), verb, object_act);
@@ -356,8 +369,8 @@ public abstract class ContentActivity extends android.app.Activity{
             String content;
             // Try to send statement, if error set success and content to error message
             try{
-                StatementClient client = new StatementClient(getString(R.string.lrs_endpoint),
-                        getString(R.string.lrs_user), getString(R.string.lrs_password));
+                StatementClient client = new StatementClient(_lrs_endpoint,
+                        _lrs_username, _lrs_password);
                 content = client.postStatement(params[0]);
             }catch(Exception ex){
                 success = false;
@@ -382,8 +395,8 @@ public abstract class ContentActivity extends android.app.Activity{
             boolean success = true;
             // Try to get the activity state
             try{
-                ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
-                        getString(R.string.lrs_password));
+                ActivityClient ac = new ActivityClient(_lrs_endpoint,
+                        _lrs_username, _lrs_password);
                 // This will retrieve an array of states (should only be one in the array)
                 ActivityState as = new ActivityState(params[0].actID, params[0].stId, params[0].a);
                 state = ac.getActivityState(as);
@@ -410,8 +423,8 @@ public abstract class ContentActivity extends android.app.Activity{
             String content;
             // Try to write the activity state
             try{
-                ActivityClient ac = new ActivityClient(getString(R.string.lrs_endpoint), getString(R.string.lrs_user),
-                        getString(R.string.lrs_password));
+                ActivityClient ac = new ActivityClient(_lrs_endpoint,
+                        _lrs_username, _lrs_password);
                 ActivityState as = new ActivityState(params[0].actID, params[0].stId, params[0].a);
                 as.setState(params[0].state);
                 success = ac.postActivityState(as);

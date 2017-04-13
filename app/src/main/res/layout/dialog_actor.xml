@@ -13,16 +13,65 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="4dp"
-        android:hint="@string/actor_name" />
+        android:text="Name" />
 
     <EditText
-        android:id="@+id/email"
-        android:inputType="textEmailAddress"
+        android:id="@+id/account_name"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="4dp"
+        android:text="Account Name" />
+
+    <EditText
+        android:id="@+id/account_homepage"
+        android:inputType="textUri"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="16dp"
-        android:hint="@string/actor_email"/>
+        android:text="Account Homepage" />
+
+    <TextView android:id="@+id/lrs_endpoint_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="LRS Endpoint (include /xapi/ at the end). If left blank it will default to the ADL LRS with our Roses auth." />
+
+    <EditText
+        android:id="@+id/lrs_endpoint"
+        android:inputType="textUri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="16dp"
+        android:text="LRS Endpoint" />
+
+    <EditText
+        android:id="@+id/lrs_username"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="16dp"
+        android:text="LRS Username" />
+
+    <EditText
+        android:id="@+id/lrs_password"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="16dp"
+        android:hint="LRS Password"/>
 </LinearLayout>
