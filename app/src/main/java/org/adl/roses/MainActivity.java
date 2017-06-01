@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -67,7 +68,6 @@ public class MainActivity extends android.app.Activity {
         _lrs_username = prefs.getString(getString(R.string.preferences_lrs_username_key), getString(R.string.default_lrs_username));
 
         String tmpPassword;
-
 
         // See if there is an existing password, it should be an encoded string
         String tmpExistingPassword = prefs.getString(getString(R.string.preferences_lrs_password_key), null);
