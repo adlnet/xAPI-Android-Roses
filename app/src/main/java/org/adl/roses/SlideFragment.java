@@ -2,6 +2,7 @@ package org.adl.roses;
 
 import android.os.Bundle;
 import android.app.Fragment;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ public class SlideFragment extends Fragment {
         int slide_id = activity.getCurrentSlide();
         // Set the fragment's textview based on which module and slide is currently active
         TextView txt = (TextView)myInflatedView.findViewById(R.id.fragText);
+        txt.setMovementMethod(new ScrollingMovementMethod());
         switch (android_act_id){
             case 0:
                 switch (slide_id){

@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -66,38 +67,25 @@ public class MainActivity extends android.app.Activity {
         _lrs_endpoint = prefs.getString(getString(R.string.preferences_lrs_endpoint_key), getString(R.string.default_lrs_endpoint));
         _lrs_username = prefs.getString(getString(R.string.preferences_lrs_username_key), getString(R.string.default_lrs_username));
 
-        // Silly to do this but at least have to encode the password
         String tmpPassword;
-        String tmpDefaultPassword = getString(R.string.default_lrs_password);
-        byte[] defaultData = null;
-        // Try encoding default string to bytes
-        try {
-            defaultData = tmpDefaultPassword.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            Toast.makeText(getApplicationContext(), "Error encoding default password",
-                                    Toast.LENGTH_LONG).show();
-        }
-        // If encoding was successful, encode bytes to string
-        if (defaultData != null) {
-            tmpDefaultPassword = Base64.encodeToString(defaultData, Base64.DEFAULT);
-        }
 
         // See if there is an existing password, it should be an encoded string
         String tmpExistingPassword = prefs.getString(getString(R.string.preferences_lrs_password_key), null);
         // If there was no existing password, just set it to the encoded default password
         if (tmpExistingPassword == null){
-            tmpPassword = tmpDefaultPassword;
+            launchSettings();
         } else {
             tmpPassword = tmpExistingPassword;
+            byte[] tmpBytes = Base64.decode(tmpPassword, Base64.DEFAULT);
+            try {
+                _lrs_password = new String(tmpBytes, "UTF-8");
+            } catch (UnsupportedEncodingException ex) {
+                Toast.makeText(getApplicationContext(), "Error decoding last set password, please fix",
+                        Toast.LENGTH_LONG).show();
+            }
         }
 
-        byte[] tmpBytes = Base64.decode(tmpPassword, Base64.DEFAULT);
-        try {
-            _lrs_password = new String(tmpBytes, "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            Toast.makeText(getApplicationContext(), "Error decoding last set password, please fix",
-                    Toast.LENGTH_LONG).show();
-        }
+
         TextView endpointView = (TextView)findViewById((R.id.lrs_endpoint_view));
         endpointView.setText(_lrs_endpoint);
         // setup the list of content options
