@@ -69,7 +69,7 @@ public abstract class ContentActivity extends android.app.Activity{
                     "Attempt for " + getName(),
                     "Attempt for " + getDesc(), getString(R.string.scorm_profile_activity_type_attempt_id));
 
-            Context init_con = createContext(attempt_act, null, null, true);
+            Context init_con = createContext(null, attempt_act, true);
             // send initialize statement
             WriteStatementTask init_stmt_task = new WriteStatementTask();
             Statement stmt = new Statement(getActor(), Verbs.initialized(), init_act);
@@ -140,6 +140,13 @@ public abstract class ContentActivity extends android.app.Activity{
             }
         });
 
+        Button ebutton = (Button) findViewById(R.id.exit);
+        ebutton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                exit();
+            }
+        });
+
         Button pbutton = (Button) findViewById(R.id.prev);
         pbutton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
@@ -154,7 +161,7 @@ public abstract class ContentActivity extends android.app.Activity{
             }
         });
 
-        // Check that the activity is u sing he layout version with
+        // Check that the activity is using the layout version with
         // the fragment_container FameLayout
         if (findViewById(R.id.textFrag) != null){
             // However, if we're being restored from a previous state,
@@ -264,12 +271,11 @@ public abstract class ContentActivity extends android.app.Activity{
                 getString(R.string.scorm_profile_activity_type_attempt_id));
 
         // Create the module attempt activity
-        Activity parent_attempt_act = createActivity(getString(R.string.app_activity_iri) + getPath() + "?attemptId=" + getCurrentAttempt(),
-                "Attempt for " + getName(), "Attempt for " + getDesc(),
-                getString(R.string.scorm_profile_activity_type_attempt_id));
+        Activity parent_attempt_act = createActivity(getString(R.string.app_activity_iri) + getPath(), getName(), getDesc(),
+                getString(R.string.scorm_profile_activity_type_lesson_id));
 
         // Create context and verb for the statement, then create statement and send it
-        Context slide_con = createContext(lesson_attempt_act, slide_attempt_act, parent_attempt_act, false);
+        Context slide_con = createContext(slide_attempt_act, parent_attempt_act, false);
         HashMap<String, String> verb_lang = new HashMap<>();
         verb_lang.put("en-US", "completed");
         Verb verb = new Verb(getString(R.string.read_verb), verb_lang);
@@ -279,7 +285,7 @@ public abstract class ContentActivity extends android.app.Activity{
         slide_init_stmt_task.execute(stmt);
     }
 
-    protected Context createContext(Activity lesson_attempt_act, Activity slide_attempt_act, Activity parent_attempt_act, boolean init){
+    protected Context createContext(Activity slide_attempt_act, Activity parent_attempt_act, boolean init){
         Context con = new Context();
         ContextActivities con_acts = new ContextActivities();
 
@@ -288,7 +294,7 @@ public abstract class ContentActivity extends android.app.Activity{
         con_act_list.add(createActivity(getString(R.string.app_activity_iri),
                 getString(R.string.app_activity_name), getString(R.string.app_activity_description),
                 getString(R.string.scorm_profile_activity_type_course_id)));
-        con_act_list.add(lesson_attempt_act);
+
 
         // If the statement isn't init then add the slide attempt activity
         /// and parent attempt activity
@@ -360,6 +366,13 @@ public abstract class ContentActivity extends android.app.Activity{
             setResult(RESULT_OK, returnIntent);
         }
         finish();
+    }
+
+    protected void exit(){
+        // Pressing ext terminates the module, this assumes you read the current slide
+        // you terminated it on
+        sendSlideChangeStatement();
+        returnResult(false);
     }
 
     // Inner class to write statements to the LRS - returns boolean success and string result

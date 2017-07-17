@@ -12,7 +12,8 @@
     <ListView
         android:id="@+id/list"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/img1" />
 
     <ImageView
         android:id="@+id/img1"
@@ -32,5 +33,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginRight="50dp"
         />
+
 
 </RelativeLayout>
